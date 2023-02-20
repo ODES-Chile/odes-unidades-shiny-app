@@ -1,0 +1,18 @@
+---
+output: html_document
+params:
+  id: NA
+  unit_name: NA
+title: "`r params$unit_name`"  
+---
+
+```{r}
+# The `params` object is available in the document.
+params$n
+```
+
+A plot of `params$unit_name` random points.
+
+```{r}
+plot(rnorm(as.numeric(params$id)), rnorm(as.numeric(params$id)))
+```
