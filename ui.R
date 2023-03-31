@@ -26,26 +26,40 @@ page_navbar(
         top = 77 + 10, left = 10,
         right = "auto", bottom = "auto",
 
-        # h6("Panel de control"),
         tags$br(),
-        selectInput("macrozona", tags$small("Macrozona"), opt_macrozona),
-        selectInput("unidad", tags$small("Unidad administrativa"), opt_unidad),
-        selectInput("variable", tags$small("Variable"), opt_variable, selected = "pre"),
-        sliderTextInput("fecha", tags$small("Fecha"), opt_fecha, selected = max(opt_fecha)),
-
 
         conditionalPanel(
-          "true",
-          # "input.station != ''",
-          # checkboxInput("showchart", "Mostrar detalle estacion histórica"),
-
-
+          "input.showpanel",
+          selectInput("macrozona", tags$small("Macrozona"), opt_macrozona),
+          selectInput("unidad", tags$small("Unidad administrativa"), opt_unidad),
+          selectInput("variable", tags$small("Variable"), opt_variable, selected = "pre"),
+          sliderTextInput("fecha", tags$small("Fecha"), opt_fecha, selected = max(opt_fecha)),
           conditionalPanel(
-            "input.showchart",
-            # "hchart va en 2do contitaion panel",
-            highchartOutput("chart", width = "100%", height = "250px"),
-            actionButton("reporte","Generar reporte", icon = icon("file"),  class = "btn-primary btn-block")
-          ),
+            "true",
+            # "input.station != ''",
+            # checkboxInput("showchart", "Mostrar detalle estacion histórica"),
+            conditionalPanel(
+              "input.showchart",
+              # "hchart va en 2do contitaion panel",
+              highchartOutput("chart", width = "100%", height = "250px"),
+              actionButton("reporte","Generar reporte", icon = icon("file"),  class = "btn-primary btn-block")
+            )
+          )
+        ),
+        # prettySwitch(
+        #   inputId = "showpanel",
+        #   label = tags$small("Mostrar controles"),
+        #   status = "primary",
+        #   value = TRUE
+        # )
+        prettyToggle(
+          inputId = "showpanel",
+          value = TRUE,
+          label_on = tags$small("Esconder controles"),
+          label_off = tags$small("Mostrar controles"),
+          status_on = "primary",
+          status_off = "info",
+          animation = "tada"
         )
       ),
       tags$div(id="cite",

@@ -6,6 +6,7 @@ library(leaflet.providers)
 library(highcharter) # remotes::install_github("jbkunst/highcharter")
 library(shinyWidgets)
 library(bslib)
+library(shinyWidgets)
 
 # DATA
 library(tidyverse)
