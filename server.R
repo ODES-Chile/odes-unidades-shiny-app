@@ -118,7 +118,8 @@ function(input, output, session) {
     data_geo       <- data_geo()
 
     colorData <- data_geo[["valor"]]
-    pal <- colorBin("RdYlBu", colorData, 10, pretty = TRUE)
+
+    pal <- colorBin("RdYlBu", colorData, 10, pretty = TRUE, reverse = TRUE)
 
     leafletProxy("map") |>
       clearShapes() |>
@@ -145,14 +146,20 @@ function(input, output, session) {
         # popup = ~paste0(nombre_unidad , ": ",  round(valor, 3))
       ) |>
       addLegend(
-        # "bottomleft",
-        "topright",
-        pal = pal,
-        values = colorData,
-        title = names(which(opt_variable == input$variable)),
+        position  = "topright",
+        pal       = pal,
+        values    = colorData,
+        labFormat = labelFormat(transform = function(x) sort(x, decreasing = TRUE)),
+        layerId   = "colorLegend",
+        title     = dparvar |>
+                      filter(variable == input$variable) |>
+                      str_glue_data("{desc} {ifelse(is.na(unidad), '', str_c('(',unidad, ')'))}")
         # labFormat = labelFormat(suffix = ),
-        layerId = "colorLegend"
+
       )
+
+    names(which(opt_variable == input$variable))
+
   })
 
   observeEvent(input$map_shape_click, {

@@ -53,6 +53,8 @@ data   <- readRDS("data/02_data_min.rds")
 dunits <- readRDS("data/01_dunits.rds")
 macrozonas <- sf::read_sf("data/macrozonas_chile.gpkg")
 
+dparvar <- readxl::read_excel("data/parametros_variables.xlsx")
+
 unidad_key <-  list(
   regiones   = "cut_reg",
   provincias = "cut_prov",
