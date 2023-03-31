@@ -234,23 +234,28 @@ function(input, output, session) {
 
     data_unidad <- data_unidad()
 
-    datos <- data_unidad |>
-      mutate(x = date, date = year(date))
+    meses <- c("Enero", "Febrero", "Marzo", "Abril",
+               "Mayo", "Junio", "Julio", "Agosto",
+               "Septiembre", "Octubre", "Noviembre", "Diciembre")
 
-    year(datos$x) <- year(Sys.time())
+    datos <- data_unidad |>
+      mutate(
+        year = year(date),
+        x = meses[month(date)],
+        x = fct_inorder(x)
+        )
 
     reprep <- function(n = 10, value1 = "a", value2 = "b"){
       c(rep(value1, n - 1), value2)
     }
 
-    ngroups <- datos |> distinct(date) |> nrow()
-
-    # hc <- hchart(rnorm(10000))
+    ngroups <- datos |> distinct(year) |> nrow()
+    typechart <- ifelse(attr(datos, "variable") == "Precipitación", "column", "spline")
 
     hc <- hchart(
       datos,
-      "spline",
-      hcaes(x, y, group = date),
+      typechart,
+      hcaes(x, y, group = year),
       color        = reprep(ngroups, "#DDDDDD", parametros$color),
       lineWidth    = reprep(ngroups, 2, 5),
       # showInLegend = reprep(ngroups, FALSE, TRUE),
@@ -260,11 +265,6 @@ function(input, output, session) {
       hc_yAxis( title = list(text =  attr(data_unidad, "variable")))
 
     un <- paste(as.character(attr(datos, "unit_name")), collapse = " ")
-    # un <- dunits |>
-    #   filter(code == input$map_shape_click$id) |>
-    #   pull(unit_name)
-
-    # message(unit_name)
 
     showModal(
       modalDialog(
