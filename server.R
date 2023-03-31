@@ -14,15 +14,10 @@ function(input, output, session) {
         zoomControl = FALSE
         )
       ) |>
-    # mapview::mapview()@map |>
-      # addTiles() |>
       addProviderTiles(providers$CartoDB.Positron) |>
-      # addTiles(
-      #   urlTemplate = "https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png",
-      #   attribution = '<a href="https://github.com/cyclosm/cyclosm-cartocss-style/releases" title="CyclOSM - Open Bicycle render">CyclOSM</a> | Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      # ) |>
       htmlwidgets::onRender("function(el, x) { L.control.zoom({ position: 'topright' }).addTo(this) }") |>
-      setView(lng =  -70.64827, lat = -33.45694, zoom = 6)
+      setView(lng =  -70.64827, lat = -33.45694, zoom = 6) |>
+      leafem::addLogo(img = "https://odes-chile.org/img/logo.png", src= "remote", position = "bottomleft")
   })
 
   # mini grafico
