@@ -119,7 +119,13 @@ function(input, output, session) {
 
     colorData <- data_geo[["valor"]]
 
-    pal <- colorBin("RdYlBu", colorData, 10, pretty = TRUE, reverse = TRUE)
+    cols <- dparvar |>
+      filter(variable == input$variable) |>
+      pull(cols) |>
+      str_split(", ", simplify = TRUE) |>
+      as.vector()
+
+    pal <- colorBin(cols, colorData, 10, pretty = TRUE, reverse = TRUE)
 
     leafletProxy("map") |>
       clearShapes() |>
