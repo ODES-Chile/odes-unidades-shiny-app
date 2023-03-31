@@ -139,6 +139,7 @@ function(input, output, session) {
         fillOpacity = 0.7,
         layerId = ~id_unidad,
         label = ~paste0(nombre_unidad , " ",  round(valor, 3)),
+        highlightOptions = highlightOptions(color = "white", weight = 4,fillColor = parametros$color,bringToFront = TRUE),
         labelOptions = labelOptions(
           # offset = c(-20, -20),
           style = list(
