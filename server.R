@@ -232,19 +232,23 @@ function(input, output, session) {
     datos <- data_unidad |>
       select(-date)
 
+    typechart <- ifelse(attr(datos, "variable") == "Precipitación", "column", "spline")
+
     highchartProxy("chart") |>
       hcpxy_update_series(
         id = "data",
         lineWidth = 1,
+        type = typechart,
         states = list(hover = list(lineWidthPlus = 0)),
         data = list_parse2(datos),
         name = attr(data_unidad, "variable"),
         color = parametros$color
         ) |>
       hcpxy_update(
-        title    = list(text = attr(data_unidad, "unit_name")),
-        subtitle = list(text = attr(data_unidad, "variable"))
+        subtitle = list(text = attr(data_unidad, "unit_name"))
+        # subtitle = list(text = attr(data_unidad, "variable"))
       )
+
 
   })
 

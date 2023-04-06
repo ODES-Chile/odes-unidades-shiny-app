@@ -31,24 +31,21 @@ page_navbar(
           selectInput("unidad", tags$small("Unidad administrativa"), opt_unidad),
           selectInput("variable", tags$small("Variable"), opt_variable, selected = "pre"),
           sliderTextInput("fecha", tags$small("Fecha"), opt_fecha, selected = max(opt_fecha)),
+
           conditionalPanel(
-            "true",
-            # "input.station != ''",
-            # checkboxInput("showchart", "Mostrar detalle estacion histórica"),
-            conditionalPanel(
-              "input.showchart",
-              # "hchart va en 2do contitaion panel",
-              highchartOutput("chart", width = "100%", height = "250px"),
-              actionButton("reporte","Generar reporte", icon = icon("file"),  class = "btn-primary btn-block"),
-              tags$br()
-            )
+            "input.showchart",
+            # "hchart va en 2do contitaion panel",
+            highchartOutput("chart", width = "100%", height = "200px"),
+            actionButton("reporte","Generar reporte", icon = icon("file"),  class = "btn-primary btn-block"),
+            tags$br(),
+            tags$br(),
           )
+
         ),
         conditionalPanel(
           "false",
           checkboxInput("showchart", "Mostrar información histórica"),
           ),
-
         prettyToggle(
           inputId = "showpanel",
           value = TRUE,
