@@ -44,6 +44,7 @@ theme_odes <-  bs_theme(
 hc_void <- highchart() |>
   hc_add_series(data = NULL, id = "data", showInLegend = FALSE) |>
   hc_xAxis(type = "datetime") |>
+  hc_yAxis(endOnTick = FALSE, startOnTick = FALSE) |>
   hc_credits(enabled = TRUE, text = "", href = "")
 
 
