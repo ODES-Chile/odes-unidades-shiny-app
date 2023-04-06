@@ -3,7 +3,8 @@
 /* outer map */
 div.outer {
   position: fixed;
-  top: 56px;
+/*  top: 56px; */
+  top: 46px;
   left: 0;
   right: 0;
   bottom: 0;
