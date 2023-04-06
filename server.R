@@ -267,8 +267,11 @@ function(input, output, session) {
       c(rep(value1, n - 1), value2)
     }
 
-    ngroups <- datos |> distinct(year) |> nrow()
+    ngroups   <- datos |> distinct(year) |> nrow()
     typechart <- ifelse(attr(datos, "variable") == "Precipitación", "column", "spline")
+    mtdta     <- dparvar |>
+      filter(desc == attr(data_unidad, "variable")) |>
+      pull(metadata)
 
     hc <- hchart(
       datos,
@@ -280,7 +283,10 @@ function(input, output, session) {
       ) |>
       hc_tooltip(table = TRUE, sort = TRUE) |>
       hc_xAxis( title = list(text = "")) |>
-      hc_yAxis( title = list(text =  attr(data_unidad, "variable")))
+      hc_yAxis( title = list(text =  attr(data_unidad, "variable"))) |>
+      hc_caption(text = mtdta)
+
+    hc
 
     un <- paste(as.character(attr(datos, "unit_name")), collapse = " ")
 

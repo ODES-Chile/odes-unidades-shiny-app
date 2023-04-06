@@ -39,7 +39,8 @@ page_navbar(
               "input.showchart",
               # "hchart va en 2do contitaion panel",
               highchartOutput("chart", width = "100%", height = "250px"),
-              actionButton("reporte","Generar reporte", icon = icon("file"),  class = "btn-primary btn-block")
+              actionButton("reporte","Generar reporte", icon = icon("file"),  class = "btn-primary btn-block"),
+              tags$br()
             )
           )
         ),
@@ -47,6 +48,7 @@ page_navbar(
           "false",
           checkboxInput("showchart", "Mostrar información histórica"),
           ),
+
         prettyToggle(
           inputId = "showpanel",
           value = TRUE,
