@@ -14,7 +14,16 @@ function(input, output, session) {
         zoomControl = FALSE
         )
       ) |>
-      addProviderTiles(providers$CartoDB.Positron) |>
+
+      addProviderTiles(providers$CartoDB.Positron,  group = "CartoDB") |>
+      addProviderTiles(providers$Esri.WorldImagery, group = "ESRI WI") |>
+      addProviderTiles(providers$Esri.WorldTopoMap, group = "ESRI WTM") |>
+
+      addLayersControl(
+        baseGroups = c("CartoDB Positron", "ESRI WI", "ESRI WTM"),
+        position   = "bottomright",
+        options = layersControlOptions(collapsed = FALSE)
+      ) |>
       htmlwidgets::onRender("function(el, x) { L.control.zoom({ position: 'topright' }).addTo(this) }") |>
       setView(lng =  -70.64827, lat = -33.45694, zoom = 6) |>
       leafem::addLogo(img = "https://odes-chile.org/img/logo.png", src= "remote", position = "bottomleft")
@@ -311,15 +320,15 @@ function(input, output, session) {
 
   # opciones ----------------------------------------------------------------
   # mapa demo
-  output$map_demo <- renderLeaflet({
-
-    map <- leaflet(options = leafletOptions(zoomControl = FALSE)) |>
-      setView(lng =  -70.64827, lat = -33.45694, zoom = 6) |>
-      addProviderTiles(input$leafletprov) |>
-      htmlwidgets::onRender("function(el, x) { L.control.zoom({ position: 'topright' }).addTo(this) }")
-
-    map
-
-  })
+  # output$map_demo <- renderLeaflet({
+  #
+  #   map <- leaflet(options = leafletOptions(zoomControl = FALSE)) |>
+  #     setView(lng =  -70.64827, lat = -33.45694, zoom = 6) |>
+  #     addProviderTiles(input$leafletprov) |>
+  #     htmlwidgets::onRender("function(el, x) { L.control.zoom({ position: 'topright' }).addTo(this) }")
+  #
+  #   map
+  #
+  # })
 
 }
