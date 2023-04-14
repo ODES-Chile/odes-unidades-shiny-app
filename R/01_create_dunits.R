@@ -82,7 +82,7 @@ dunitsmc <- dunits |>
   count(unit) |>
   pull(unit) |>
   rev() |>
-  map_df(function(u = "cuencas"){
+  map_df(function(u = "distrito_censal"){
 
     message(u)
 
@@ -99,7 +99,7 @@ dunitsmc <- dunits |>
 
     d <- st_join(d, mc, join = st_within)
 
-    d |> count(macrozona)
+    # d |> count(macrozona)
 
     d |>
       as_tibble() |>
@@ -120,6 +120,10 @@ dunits <- dunits |>
 
 dunits |>
   filter(is.na(macrozona))
+
+dunits |>
+  filter(is.na(macrozona)) |>
+  count(unit)
 
 dunits |> saveRDS("data/01_dunits.rds")
 
