@@ -19,6 +19,18 @@ library(cli)
 
 cli::cli_h1("Start global.R")
 
+
+# helpers -----------------------------------------------------------------
+sql_con <- function() {
+  pool::dbPool(
+    drv = RPostgres::Postgres(),
+    dbname = "shiny",
+    host = Sys.getenv("HOST"),
+    user = "shiny",
+    password = Sys.getenv("SHINY_PSQL_PWD")
+  )
+}
+
 # options -----------------------------------------------------------------
 parametros <- list(
   color = "#236478",
@@ -27,15 +39,9 @@ parametros <- list(
   tabla_estaciones = "estaciones"
 )
 
-# source("R/helpers.R")
-
 theme_odes <-  bs_theme(
-  # version = version_default(),
   version = 5,
-  # bg = "white",
-  # fg = "#236478",
-  primary = "#236478",
-  # bootswatch = "yeti",
+  primary = parametros$color,
   base_font = font_google(parametros$font_family)
 )
 
@@ -50,7 +56,7 @@ hc_void <- highchart() |>
 
 # data --------------------------------------------------------------------
 # data <- readRDS("data/01_dummy_data.rds")
-data   <- readRDS("data/02_data_min.rds")
+# data   <- readRDS("data/02_data_min.rds")
 # data   <- readRDS("data/02_data.rds")
 dunits <- readRDS("data/01_dunits.rds")
 macrozonas <- sf::read_sf("data/macrozonas_chile.gpkg")
@@ -85,30 +91,32 @@ opt_macrozona <- c("Todas", "Norte Grande", "Norte Chico", "Zona Central", "Zona
 opt_macrozona <- str_to_lower(opt_macrozona)
 opt_macrozona <- set_names(opt_macrozona, str_to_title(opt_macrozona))
 
-opt_fecha <- data |>
+opt_fecha <- tbl(sql_con(), "data_clima_sequia") |>
   distinct(date) |>
+  collect() |>
+  filter(year(date) >= 2011) |> # cuidado con el data_variable que filtra anios
   arrange(date) |>
   pull()
 
-opt_variable <- data |>
-  select(-unit, -code, -date) |>
-  # select(-tipo, -codigo, -fecha) |>
-  names()
+# opt_variable <- tbl(sql_con(), "data_clima_sequia") |>
+#   select(-unit, -code, -date) |>
+#   # select(-tipo, -codigo, -fecha) |>
+#   names()
 
 opt_variable <- list(
   "Demanda evaporativa de la atmosfera" = "pet",
   "Precipitación" = "pre",
   "Temperatura" ="tas",
+  "Temperatura Mínima" ="tasmin",
+  "Temperatura Máxima" ="tasmax",
   "SPEI 1 mes" = "spei_1",
   "SPEI 3 meses" = "spei_3",
   "SPEI 6 meses" = "spei_6",
-  "SPEI 9 meses" = "spei_9",
   "SPEI 12 meses" = "spei_12",
   "SPEI 24 meses" = "spei_24",
   "SPI 1 mes" = "spi_1",
   "SPI 3 meses" = "spi_3",
   "SPI 6 meses" = "spi_6",
-  "SPI 9 meses" = "spi_9",
   "SPI 12 meses" = "spi_12",
   "SPI 24 meses" = "spi_24"
 )
@@ -122,10 +130,6 @@ opt_unidad <-  c(
   "Subuencas" = "subcuencas",
   "Subsubcuencas" = "subsubcuencas"
 )
-
-opt_opts_leafletproviders <- c("CartoDB.Positron", "Esri.WorldImagery", "Esri.WorldTopoMap")
-
-# opt_opts_yrsdata <- seq(year(fechas_min_max[1]), year(fechas_min_max[2]))
 
 # end ---------------------------------------------------------------------
 cli::cli_h1("End global.R")

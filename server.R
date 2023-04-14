@@ -1,5 +1,5 @@
 # input <- list(unidad = "distrito_censal", variable = "tas",  fecha = "2018-03-01")
-# input <- list(macrozona = "norte chico", unidad = "regiones", variable = "pre",  fecha = "2019-04-01", map_shape_click = list(id = "08"))
+# input <- list(macrozona = "zona central", unidad = "distrito_censal", variable = "pre",  fecha = "2019-04-01", map_shape_click = list(id = "08"))
 # source("global.R")
 
 function(input, output, session) {
@@ -20,7 +20,7 @@ function(input, output, session) {
       addProviderTiles(providers$Esri.WorldTopoMap, group = "ESRI WTM") |>
 
       addLayersControl(
-        baseGroups = c("CartoDB Positron", "ESRI WI", "ESRI WTM"),
+        baseGroups = c("CartoDB", "ESRI WI", "ESRI WTM"),
         position   = "bottomright",
         options = layersControlOptions(collapsed = FALSE)
       ) |>
@@ -32,51 +32,25 @@ function(input, output, session) {
   # mini grafico
   output$chart <- renderHighchart(hc_void)
 
-  data_variable <- reactive({
+  data_coropleta <- reactive({
 
-    # cli::cli_h1("data_variable")
+    cli::cli_h3("data_coropleta")
+    cli::cli_alert_info("unidad   {input$unidad}")
+    cli::cli_alert_info("variable {input$variable}")
+    cli::cli_alert_info("fecha    {input$fecha}")
 
     u <- input$unidad
     v <- input$variable
-    # f <- ymd(input$fecha)
-
-    data_variable <- data |>
-      # filter(year(date) == year(f), month(date) == month(f), day(date) == day(f)) |>
-      filter(unit == u) |>
-      rename(!!unidad_key[[u]] := code, valor := v) |>
-      select(date, all_of(unidad_key[[u]]), valor)
-
-    # glimpse(data_variable)
-
-    data_variable
-
-  })
-
-  # actualiza fechas con valores no NA en la variable seleccionada
-  observeEvent(data_variable(), {
-
-    data_variable <- data_variable()
-
-    # fechas con valores no nulos
-    fs <- data_variable |>
-      filter(!is.na(valor)) |>
-      distinct(date) |>
-      arrange(date) |>
-      pull(date) |>
-      as.character()
-
-    updateSliderTextInput(session, "fecha", choices = fs)
-
-  })
-
-  data_coropleta <- reactive({
-
-    data_variable <- data_variable()
-
     f <- ymd(input$fecha)
 
-    data_coropleta <- data_variable |>
-      filter(year(date) == year(f), month(date) == month(f), day(date) == day(f))
+    data_coropleta <- tbl(sql_con(), "data_clima_sequia") |>
+      filter(year(date) == year(f), month(date) == month(f), day(date) == day(f)) |>
+      filter(unit == u) |>
+      rename(!!unidad_key[[u]] := code, valor := v) |>
+      select(date, all_of(unidad_key[[u]]), valor) |>
+      collect()
+
+    # glimpse(data_coropleta)
 
     data_coropleta
 
@@ -84,27 +58,33 @@ function(input, output, session) {
 
   data_geo <- reactive({
 
-    cli::cli_h2("data_geo")
+    cli::cli_h3("data_geo")
+    cli::cli_alert_info("unidad    {input$unidad}")
+    cli::cli_alert_info("macrozona {input$macrozona}")
 
-    data_coropleta <- data_coropleta()
-
+    mc <- input$macrozona
     u  <- input$unidad
     un <- nombre_key[[u]]
     uk <- unidad_key[[u]]
 
+    data_coropleta <- data_coropleta()
+    data_geo       <- sf::read_sf(str_glue("data/vectorial/raw/{u}.gpkg"))
 
-    if(input$macrozona == "todas"){
-      # leemos simplificado
-      data_geo <- sf::read_sf(str_glue("data/vectorial/min/{u}1000.gpkg"))
-    } else {
-      data_geo <- sf::read_sf(str_glue("data/vectorial/raw/{u}.gpkg"))
+
+    if(mc != "todas") {
 
       units <- dunits |>
         filter(macrozona == input$macrozona) |>
         pull(code)
 
+      rs <- data_geo[[unidad_key[[u]]]] %in% units
+
       data_geo <- data_geo |>
-        filter(data_geo[[unidad_key[[u]]]] %in% units)
+        filter(rs)
+
+    } else {
+
+      data_geo <- sf::read_sf(str_glue("data/vectorial/min/{u}1000.gpkg"))
 
     }
 
@@ -114,17 +94,50 @@ function(input, output, session) {
         nombre_unidad := !!un,
         id_unidad     := !!uk
       ) |>
-      filter(!sf::st_is_empty(data_geo)) |>
-      filter(!is.na(valor))
+      # filter(!is.na(valor))
+      filter(!sf::st_is_empty(data_geo))
 
     data_geo
+
+  })
+
+  data_unidad <- reactive({
+
+    cli::cli_h3("data_unidad")
+    cli::cli_alert_info("idunidad {input$map_shape_click$id}")
+    cli::cli_alert_info("variable {input$variable}")
+
+    if(is.null(input$map_shape_click$id)) return(tibble())
+
+    id <- input$map_shape_click$id
+    v  <- input$variable
+
+    vr        <- names(which(input$variable == opt_variable))
+    unit_name <- dunits |>
+      filter(code == input$map_shape_click$id) |>
+      pull(unit_name)
+
+    data_unidad <- tbl(sql_con(), "data_clima_sequia") |>
+      filter(code == id) |>
+      filter(year(date) >= 2011) |> # cuidado con el data_variable que filtra anios
+      rename(valor := v) |>
+      select(date, code, valor) |>
+      arrange(date) |>
+      collect()
+
+    attr(data_unidad, "vr")        <- vr
+    attr(data_unidad, "unit_name") <- unit_name
+
+    data_unidad
 
   })
 
   # observer de mapa
   observe({
 
-    data_geo       <- data_geo()
+    cli::cli_h3("observer de mapa")
+
+    data_geo <- data_geo()
 
     colorData <- data_geo[["valor"]]
 
@@ -136,7 +149,10 @@ function(input, output, session) {
 
     pal <- colorBin(cols, colorData, 10, pretty = TRUE, reverse = TRUE)
 
+    # names(which(opt_variable == input$variable))
+
     leafletProxy("map") |>
+      # leaflet() |> addTiles() |>
       clearShapes() |>
       clearTopoJSON() |>
       leaflet::addPolygons(
@@ -174,65 +190,40 @@ function(input, output, session) {
 
       )
 
-    names(which(opt_variable == input$variable))
-
   })
 
+  # observer que escucha click para generar mini grafico
   observeEvent(input$map_shape_click, {
 
-    # print(input$map_shape_click)
+    cli::cli_h3("observer de map_shape_click")
+    cli::cli_alert_info("id       {input$map_shape_click$id}")
 
     updateCheckboxInput(session, "showchart", value = TRUE)
 
-    value <- input$map_shape_click$id
-
-    updateSelectizeInput(session, inputId = "idunit", choices = value, selected = value)
 
   })
 
+  # Este observer dice que si se cambia de unidad
+  # el mini gráfico se debe ocultar
   observeEvent(input$unidad, {
     updateCheckboxInput(session, "showchart", value = FALSE)
   })
 
-  data_unidad <- reactive({
-
-    data_variable <- data_variable()
-
-    u <- input$unidad
-    un <- nombre_key[[u]]
-    uk <- unidad_key[[u]]
-    vr <- names(which(input$variable == opt_variable))
-
-    data_unidad <- data_variable |>
-      rename(id_unidad := !!uk) |>
-      filter(id_unidad == input$map_shape_click$id) |>
-      select(x = date, y = valor) |>
-      mutate(date = x, x = datetime_to_timestamp(x), y = round(y, 2)) |>
-      arrange(x)
-
-    data_unidad <- data_unidad |>
-      filter(complete.cases(data_unidad))
-
-    unit_name <- dunits |>
-      filter(code == input$map_shape_click$id) |>
-      pull(unit_name)
-
-    attr(data_unidad, "unit_name") <- unit_name
-    attr(data_unidad, "variable")  <- vr
-
-    data_unidad
-
-  })
-
+  # observer de mini grafico
   observe({
+
+    cli::cli_h3("observer de mini grafico")
+
+    data_unidad <- data_unidad()
 
     if(!input$showchart) return(TRUE)
 
-    data_unidad <- data_unidad()
     datos <- data_unidad |>
-      select(-date)
+      filter(complete.cases(data_unidad)) |>
+      select(x = date, y = valor) |>
+      mutate(x = datetime_to_timestamp(x), y = round(y, 2))
 
-    typechart <- ifelse(attr(datos, "variable") == "Precipitación", "column", "spline")
+    typechart <- ifelse(attr(data_unidad, "vr") == "Precipitación", "column", "spline")
 
     highchartProxy("chart") |>
       hcpxy_update_series(
@@ -241,14 +232,10 @@ function(input, output, session) {
         type = typechart,
         states = list(hover = list(lineWidthPlus = 0)),
         data = list_parse2(datos),
-        name = attr(data_unidad, "variable"),
+        name = attr(data_unidad, "vr"),
         color = parametros$color
-        ) |>
-      hcpxy_update(
-        subtitle = list(text = attr(data_unidad, "unit_name"))
-        # subtitle = list(text = attr(data_unidad, "variable"))
-      )
-
+      ) |>
+      hcpxy_update(subtitle = list(text = attr(data_unidad, "unit_name")))
 
   })
 
@@ -264,7 +251,8 @@ function(input, output, session) {
       mutate(
         year = year(date),
         x = meses[month(date)],
-        x = fct_inorder(x)
+        x = fct_inorder(x),
+        y = valor
         )
 
     reprep <- function(n = 10, value1 = "a", value2 = "b"){
@@ -272,9 +260,9 @@ function(input, output, session) {
     }
 
     ngroups   <- datos |> distinct(year) |> nrow()
-    typechart <- ifelse(attr(datos, "variable") == "Precipitación", "column", "spline")
+    typechart <- ifelse(attr(datos, "vr") == "Precipitación", "column", "spline")
     mtdta     <- dparvar |>
-      filter(desc == attr(data_unidad, "variable")) |>
+      filter(desc == attr(data_unidad, "vr")) |>
       pull(metadata)
 
     hc <- hchart(
@@ -288,7 +276,8 @@ function(input, output, session) {
       hc_tooltip(table = TRUE, sort = TRUE) |>
       hc_xAxis( title = list(text = "")) |>
       hc_yAxis( title = list(text =  attr(data_unidad, "variable"))) |>
-      hc_caption(text = mtdta)
+      hc_caption(text = mtdta) |>
+      hc_exporting(enabled = TRUE)
 
     hc
 
@@ -327,18 +316,5 @@ function(input, output, session) {
       )
     }
   )
-
-  # opciones ----------------------------------------------------------------
-  # mapa demo
-  # output$map_demo <- renderLeaflet({
-  #
-  #   map <- leaflet(options = leafletOptions(zoomControl = FALSE)) |>
-  #     setView(lng =  -70.64827, lat = -33.45694, zoom = 6) |>
-  #     addProviderTiles(input$leafletprov) |>
-  #     htmlwidgets::onRender("function(el, x) { L.control.zoom({ position: 'topright' }).addTo(this) }")
-  #
-  #   map
-  #
-  # })
 
 }
