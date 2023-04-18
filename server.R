@@ -172,8 +172,6 @@ function(input, output, session) {
 
     pal <- colorBin(cols, colorData, 10, pretty = TRUE, reverse = TRUE)
 
-    # names(which(opt_variable == input$variable))
-
     leafletProxy("map") |>
       # leaflet() |> addTiles() |>
       clearShapes() |>
@@ -202,15 +200,14 @@ function(input, output, session) {
       ) |>
       addLegend(
         position  = "topright",
+        na.label = "No disponible",
         pal       = pal,
         values    = colorData,
-        labFormat = labelFormat(transform = function(x) sort(x, decreasing = TRUE)),
+        labFormat = labelFormat(transform = function(x) sort(x, decreasing = F)),
         layerId   = "colorLegend",
         title     = dparvar |>
                       filter(variable == input$variable) |>
                       str_glue_data("{desc} {ifelse(is.na(unidad), '', str_c('(',unidad, ')'))}")
-        # labFormat = labelFormat(suffix = ),
-
       )
 
   })
