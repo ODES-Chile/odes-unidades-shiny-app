@@ -10,7 +10,7 @@ function(input, output, session) {
 
     leaflet(
       options = leafletOptions(
-        attributionControl=FALSE,
+        attributionControl = FALSE,
         zoomControl = FALSE
         )
       ) |>
@@ -26,7 +26,30 @@ function(input, output, session) {
       ) |>
       htmlwidgets::onRender("function(el, x) { L.control.zoom({ position: 'topright' }).addTo(this) }") |>
       setView(lng =  -70.64827, lat = -33.45694, zoom = 6) |>
-      leafem::addLogo(img = "https://odes-chile.org/img/logo.png", src= "remote", position = "bottomleft")
+      leafem::addLogo(
+        img = "https://odes-chile.org/img/logo.png",
+        src= "remote",
+        position = "bottomleft",
+        offset.x = 5,
+        offset.y = 5,
+        ) |>
+      leaflet.extras::addSearchOSM(
+        options = leaflet.extras::searchOptions(
+          textErr = "Ubicación no encontrada",
+          textCancel = "Cancelar",
+          textPlaceholder = "Buscar...",
+          position = "bottomright"
+        )
+      ) |>
+      addEasyButton(
+        easyButton(
+          position = "bottomright",
+          icon = "fa-crosshairs",
+          title = "Mi ubicación",
+          onClick = JS("function(btn, map){ map.locate({setView: true}); }")
+          )
+      )
+
   })
 
   # mini grafico
