@@ -2,11 +2,13 @@ library(tidyverse)
 library(lubridate)
 library(sf)
 
-archivos <- fs::dir_ls("data/vectorial/min/", regexp = "0010")
+archivos <- fs::dir_ls("data/vectorial/raw/")
+archivos
 
 tipos <- archivos |>
-  str_remove(".*min/") |>
-  str_remove("[0-9]+\\.gpkg")
+  str_remove(".*raw/") |>
+  str_remove("\\.gpkg")
+tipos
 
 columna_id <- list(
   regiones   = "cut_reg",
@@ -60,7 +62,9 @@ columna_nombre <- list(
 #
 # })
 
-dunits <- map2_df(archivos, tipos, function(fn = "data/vectorial/min/cuencas0010.gpkg", tipo = "cuencas"){
+
+# generar para cada unidad la macrozona asociada --------------------------
+dunits <- map2_df(archivos, tipos, function(fn = "data/vectorial/raw/cuencas.gpkg", tipo = "cuencas"){
 
   message(fn, tipo)
 
@@ -120,6 +124,29 @@ dunits <- dunits |>
 
 dunits |>
   filter(is.na(macrozona))
+
+
+
+
+# fix manual --------------------------------------------------------------
+dunits |> count(macrozona)
+dunits |> filter(is.na(macrozona), unit == "regiones")
+dunits |> filter(is.na(macrozona), unit == "provincias")
+dunits |> filter(is.na(macrozona), unit == "comunas")
+dunits |> filter(is.na(macrozona), unit == "cuencas")
+
+dunits <- dunits |>
+  mutate(
+    macrozona = case_when(
+      unit == "regiones" & is.na(macrozona) & str_detect(unit_name, "^Aysén")       ~ "zona austral",
+      unit == "regiones" & is.na(macrozona) & str_detect(unit_name, "^Valparaíso")  ~ "zona central",
+
+      unit == "provincias" & is.na(macrozona) & str_detect(unit_name, "^Valparaíso")  ~ "zona central",
+      unit == "provincias" & is.na(macrozona) & str_detect(unit_name, "^Aisén")       ~ "zona austral",
+      TRUE ~ macrozona
+    )
+  )
+
 
 dunits |>
   filter(is.na(macrozona)) |>
