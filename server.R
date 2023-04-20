@@ -170,7 +170,7 @@ function(input, output, session) {
       str_split(", ", simplify = TRUE) |>
       as.vector()
 
-    pal <- colorBin(cols, colorData, 10, pretty = TRUE, reverse = TRUE)
+    pal <- colorBin(cols, colorData, 10, pretty = TRUE, reverse = FALSE)
 
     leafletProxy("map") |>
       # leaflet() |> addTiles() |>
@@ -203,7 +203,7 @@ function(input, output, session) {
         na.label = "No disponible",
         pal       = pal,
         values    = colorData,
-        labFormat = labelFormat(transform = function(x) sort(x, decreasing = F)),
+        labFormat = labelFormat(transform = function(x) sort(x, decreasing = FALSE)),
         layerId   = "colorLegend",
         title     = dparvar |>
                       filter(variable == input$variable) |>
