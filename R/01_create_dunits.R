@@ -147,11 +147,12 @@ dunits <- dunits |>
     )
   )
 
-
 dunits |>
   filter(is.na(macrozona)) |>
   count(unit)
 
-dunits |> saveRDS("data/01_dunits.rds")
+
+# save --------------------------------------------------------------------
+saveRDS(dunits, "data/01_dunits.rds")
 
 
