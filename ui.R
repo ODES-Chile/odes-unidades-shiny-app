@@ -27,7 +27,7 @@ page_navbar(
 
         conditionalPanel(
           "input.showpanel",
-          selectInput("macrozona", tags$small("Macrozona"), opt_macrozona, selected = "Zona Central"),
+          selectInput("macrozona", tags$small("Macrozona"), opt_macrozona, selected = "zona central"),
           selectInput("unidad", tags$small("Unidad administrativa"), opt_unidad),
           selectInput("variable", tags$small("Variable"), opt_variable, selected = "pre"),
           sliderTextInput("fecha", tags$small("Fecha"), opt_fecha, selected = max(opt_fecha)),
@@ -36,7 +36,7 @@ page_navbar(
             "input.showchart",
             # "hchart va en 2do contitaion panel",
             highchartOutput("chart", width = "100%", height = "200px"),
-            actionButton("reporte","Generar reporte", icon = icon("file"),  class = "btn-primary btn-block"),
+            actionButton("reporte","Generar reporte", icon = icon("file"),  class = "btn-primary btn-sm"),
             tags$br(),
             tags$br(),
           )
