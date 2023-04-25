@@ -5,9 +5,9 @@ account: jbkunst
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 7476167
-bundleId: 6822400
+bundleId: 7115607
 url: https://jbkunst.shinyapps.io/odes-unidades-shiny-app/
-when: 1675837459.12835
-lastSyncTime: 1675837459.12839
+when: 1682022633.77221
+lastSyncTime: 1682022633.77223
 asMultiple: FALSE
 asStatic: FALSE
