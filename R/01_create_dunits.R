@@ -151,6 +151,29 @@ dunits |>
   filter(is.na(macrozona)) |>
   count(unit)
 
+dunits |>
+  filter(is.na(macrozona)) |>
+  writexl::write_xlsx('data/unidades_sin_macrozona.xlsx')
+
+dunist_fix <- readxl::read_excel("data/unidades_sin_macrozona_corregida.xlsx")
+
+
+dunits     |> count(macrozona)
+dunist_fix |> count(macrozona)
+
+dunits <- dunits |>
+  left_join(
+    dunist_fix |> select(code, macrozona_fix = macrozona),
+    by = join_by(code)
+  ) |>
+  mutate(
+    macrozona_fix = case_when(
+      macrozona_fix == "norte_chico" ~ "norte chico",
+      macrozona_fix == "centro"      ~ "zona central",
+      macrozona_fix == "austral"     ~ "zona austral"
+    ),
+    macrozona = coalesce(macrozona, macrozona_fix)
+  )
 
 # save --------------------------------------------------------------------
 saveRDS(dunits, "data/01_dunits.rds")
