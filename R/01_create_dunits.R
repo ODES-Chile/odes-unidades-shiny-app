@@ -1,35 +1,10 @@
+# setup -------------------------------------------------------------------
 library(tidyverse)
 library(lubridate)
 library(sf)
 
-archivos <- fs::dir_ls("data/vectorial/raw/")
-archivos
-
-tipos <- archivos |>
-  str_remove(".*raw/") |>
-  str_remove("\\.gpkg")
-tipos
-
-columna_id <- list(
-  regiones   = "cut_reg",
-  provincias = "cut_prov",
-  comunas    = "cut_com",
-  distrito_censal = "coddis",
-  cuencas       = "cod_cuen",
-  subcuencas    = "cod_subc",
-  subsubcuencas = "cod_ssubc"
-)
-
-columna_nombre <- list(
-  regiones   = "region",
-  provincias = "provincia",
-  comunas    = "comuna",
-  distrito_censal = "nom_dis",
-  cuencas       = "nom_cuen",
-  subcuencas    = "nom_subc",
-  subsubcuencas = "nom_ssubc"
-)
-
+# codigo 1 vez ------------------------------------------------------------
+# estos maps fueron para conocer los codigos para cada tipo de archivo
 # map(str_subset(archivos, "0010"), function(fn = "data/vectorial/min/cuencas0010.gpkg"){
 #
 #   message(fn)
@@ -62,8 +37,37 @@ columna_nombre <- list(
 #
 # })
 
+# variables ---------------------------------------------------------------
+archivos <- fs::dir_ls("data/vectorial/raw/")
+archivos
+
+tipos <- archivos |>
+  str_remove(".*raw/") |>
+  str_remove("\\.gpkg")
+tipos
+
+columna_id <- list(
+  regiones   = "cut_reg",
+  provincias = "cut_prov",
+  comunas    = "cut_com",
+  distrito_censal = "coddis",
+  cuencas       = "cod_cuen",
+  subcuencas    = "cod_subc",
+  subsubcuencas = "cod_ssubc"
+)
+
+columna_nombre <- list(
+  regiones   = "region",
+  provincias = "provincia",
+  comunas    = "comuna",
+  distrito_censal = "nom_dis",
+  cuencas       = "nom_cuen",
+  subcuencas    = "nom_subc",
+  subsubcuencas = "nom_ssubc"
+)
 
 # generar para cada unidad la macrozona asociada --------------------------
+# leemos primeros tooodas las unidades de cada archivo
 dunits <- map2_df(archivos, tipos, function(fn = "data/vectorial/raw/cuencas.gpkg", tipo = "cuencas"){
 
   message(fn, tipo)
@@ -79,9 +83,10 @@ dunits <- map2_df(archivos, tipos, function(fn = "data/vectorial/raw/cuencas.gpk
 
 })
 
+# leemos las macrozonas para realizar el st_join
 mc1 <- sf::read_sf("data/macro_zona_buf.gpkg")
 mc2 <- sf::read_sf("data/macro_zona_buf_cuen.gpkg")
-
+# por cada tipo de unidad hacer el st_join
 dunitsmc <- dunits |>
   count(unit) |>
   pull(unit) |>
@@ -120,21 +125,19 @@ dunitsmc <- dunitsmc |>
 
 dunits <- dunits |>
   distinct(unit, code, .keep_all = TRUE) |>
-  left_join(dunitsmc)
+  left_join(dunitsmc, multiple = "all")
 
 dunits |>
   filter(is.na(macrozona))
 
-
-
-
-# fix manual --------------------------------------------------------------
+# fixs --------------------------------------------------------------------
 dunits |> count(macrozona)
 dunits |> filter(is.na(macrozona), unit == "regiones")
 dunits |> filter(is.na(macrozona), unit == "provincias")
 dunits |> filter(is.na(macrozona), unit == "comunas")
 dunits |> filter(is.na(macrozona), unit == "cuencas")
 
+# manual
 dunits <- dunits |>
   mutate(
     macrozona = case_when(
@@ -151,12 +154,12 @@ dunits |>
   filter(is.na(macrozona)) |>
   count(unit)
 
-dunits |>
-  filter(is.na(macrozona)) |>
-  writexl::write_xlsx('data/unidades_sin_macrozona.xlsx')
+# dunits |>
+#   filter(is.na(macrozona)) |>
+#   writexl::write_xlsx('data/unidades_sin_macrozona.xlsx')
 
+# fix de unidades sin macrozona
 dunist_fix <- readxl::read_excel("data/unidades_sin_macrozona_corregida.xlsx")
-
 
 dunits     |> count(macrozona)
 dunist_fix |> count(macrozona)
@@ -173,7 +176,33 @@ dunits <- dunits |>
       macrozona_fix == "austral"     ~ "zona austral"
     ),
     macrozona = coalesce(macrozona, macrozona_fix)
-  )
+  ) |>
+  select(-macrozona_fix)
+
+# fix de unidades con macrozona errónea
+dunist_fix <- readxl::read_excel("data/correccion_unidades_mal_ubicadas.xlsx")
+
+dunits <- dunits |>
+  left_join(
+    dunist_fix |> select(code, macrozona_fix = macrozona),
+    by = join_by(code)
+  ) |>
+  mutate(
+    macrozona_fix = case_when(
+      macrozona_fix == "norte_chico" ~ "norte chico",
+      macrozona_fix == "centro"      ~ "zona central",
+      macrozona_fix == "austral"     ~ "zona austral",
+      macrozona_fix == "sur"         ~ "zona sur"
+    ),
+    macrozona = coalesce(macrozona_fix, macrozona)
+  ) |>
+  select(-macrozona_fix)
+
+# dunits |>
+#   filter(unit == "comunas", str_detect(unit_name, "Coro"))
+#
+# dunits |>
+#   filter(unit == "comunas", str_detect(unit_name, "oron"))
 
 # save --------------------------------------------------------------------
 saveRDS(dunits, "data/01_dunits.rds")

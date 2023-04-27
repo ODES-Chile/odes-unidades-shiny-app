@@ -1,5 +1,5 @@
 # input <- list(unidad = "distrito_censal", variable = "tas",  fecha = "2018-03-01")
-# input <- list(macrozona = "zona central", unidad = "distrito_censal", variable = "pre",  fecha = "2019-04-01", map_shape_click = list(id = "08"))
+# input <- list(macrozona = "zona central", unidad = "comunas", variable = "pre",  fecha = "2019-04-01", map_shape_click = list(id = "08"))
 # source("global.R")
 
 function(input, output, session) {
@@ -74,7 +74,7 @@ function(input, output, session) {
       collect()
 
     # glimpse(data_coropleta)
-
+    # data_coropleta |> filter(cut_com == "08101")
     data_coropleta
 
   })
@@ -93,11 +93,11 @@ function(input, output, session) {
     data_coropleta <- data_coropleta()
     data_geo       <- sf::read_sf(str_glue("data/vectorial/raw/{u}.gpkg"))
 
-
     if(mc != "todas") {
 
       units <- dunits |>
         filter(macrozona == input$macrozona) |>
+        filter(unit == input$unidad) |>
         pull(code)
 
       rs <- data_geo[[unidad_key[[u]]]] %in% units
