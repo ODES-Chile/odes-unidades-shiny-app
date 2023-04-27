@@ -87,7 +87,14 @@ nombre_key <- list(
 # opt_macrozona <- macrozonas |>
 #   as.data.frame() |>
 #   pull(macrozona)
-opt_macrozona <- c("Todas", "Norte Grande", "Norte Chico", "Zona Central", "Zona Sur", "Zona Austral")
+opt_macrozona <- c(
+  # "Todas",
+  "Norte Grande",
+  "Norte Chico",
+  "Zona Central",
+  "Zona Sur",
+  "Zona Austral"
+  )
 opt_macrozona <- str_to_lower(opt_macrozona)
 opt_macrozona <- set_names(opt_macrozona, str_to_title(opt_macrozona))
 
