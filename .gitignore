@@ -37,3 +37,4 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+rsconnect/shinyapps.io/jbkunst/odes-unidades-shiny-app.dcf
