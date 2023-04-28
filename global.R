@@ -101,8 +101,9 @@ opt_macrozona <- set_names(opt_macrozona, str_to_title(opt_macrozona))
 opt_fecha <- tbl(sql_con(), "data_clima_sequia") |>
   distinct(date) |>
   collect() |>
-  filter(year(date) >= 2011) |> # cuidado con el data_variable que filtra anios
   arrange(date) |>
+  filter(date <= ymd(20190601)) |>
+  # filter(year(date) >= 2011) |> # cuidado con el data_variable que filtra anios
   pull()
 
 # opt_variable <- tbl(sql_con(), "data_clima_sequia") |>
