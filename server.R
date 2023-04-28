@@ -64,10 +64,11 @@ function(input, output, session) {
 
     u <- input$unidad
     v <- input$variable
-    f <- ymd(input$fecha)
+    f <- ymd(input$fecha)[2] # toma el valor máximo
 
     data_coropleta <- tbl(sql_con(), "data_clima_sequia") |>
-      filter(year(date) == year(f), month(date) == month(f), day(date) == day(f)) |>
+      # filter(year(date) == year(f), month(date) == month(f), day(date) == day(f)) |>
+      filter(date == f) |>
       filter(unit == u) |>
       rename(!!unidad_key[[u]] := code, valor := v) |>
       select(date, all_of(unidad_key[[u]]), valor) |>
@@ -93,10 +94,10 @@ function(input, output, session) {
     data_coropleta <- data_coropleta()
     data_geo       <- sf::read_sf(str_glue("data/vectorial/raw/{u}.gpkg"))
 
-    if(mc != "todas") {
+    # if(mc != "todas") {
 
       units <- dunits |>
-        filter(macrozona == input$macrozona) |>
+        filter(macrozona %in% input$macrozona) |>
         filter(unit == input$unidad) |>
         pull(code)
 
@@ -105,11 +106,11 @@ function(input, output, session) {
       data_geo <- data_geo |>
         filter(rs)
 
-    } else {
-
-      data_geo <- sf::read_sf(str_glue("data/vectorial/min/{u}1000.gpkg"))
-
-    }
+#     } else {
+#
+#       data_geo <- sf::read_sf(str_glue("data/vectorial/min/{u}1000.gpkg"))
+#
+#     }
 
     data_geo <- data_geo |>
       left_join(data_coropleta, by = unidad_key[[u]]) |>
@@ -134,6 +135,8 @@ function(input, output, session) {
 
     id <- input$map_shape_click$id
     v  <- input$variable
+    f1 <- ymd(input$fecha)[1]
+    f2 <- ymd(input$fecha)[2]
 
     vr        <- names(which(input$variable == opt_variable))
     unit_name <- dunits |>
@@ -142,7 +145,8 @@ function(input, output, session) {
 
     data_unidad <- tbl(sql_con(), "data_clima_sequia") |>
       filter(code == id) |>
-      filter(year(date) >= 2011) |> # cuidado con el data_variable que filtra anios
+      filter(f1 <= date) |>
+      filter(date <= f2) |>
       rename(valor := v) |>
       select(date, code, valor) |>
       arrange(date) |>
