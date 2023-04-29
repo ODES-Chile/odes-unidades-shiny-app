@@ -1,5 +1,5 @@
 # input <- list(unidad = "distrito_censal", variable = "tas",  fecha = "2018-03-01")
-# input <- list(macrozona = "zona central", unidad = "comunas", variable = "pre",  fecha = "2019-04-01", map_shape_click = list(id = "08"))
+# input <- list(macrozona = "zona central", unidad = "comunas", variable = "spei_12",  fecha = c("2010-04-01", "20181201"), map_shape_click = list(id = "08"))
 # source("global.R")
 
 function(input, output, session) {
@@ -147,13 +147,16 @@ function(input, output, session) {
       filter(code == id) |>
       filter(f1 <= date) |>
       filter(date <= f2) |>
-      rename(valor := v) |>
-      select(date, code, valor) |>
+      # rename(variable := v) |>
+      select(date, code, unique(c("spei_12", "spei_24", "tas", "pre", v))) |>
       arrange(date) |>
       collect()
 
     attr(data_unidad, "vr")        <- vr
     attr(data_unidad, "unit_name") <- unit_name
+
+    data_unidad <- data_unidad |>
+      mutate(variable := .data[[v]])
 
     data_unidad
 
@@ -242,9 +245,10 @@ function(input, output, session) {
 
     if(!input$showchart) return(TRUE)
 
-    datos <- data_unidad |>
+    datos <-  data_unidad |>
+      select(date, variable) |>
       filter(complete.cases(data_unidad)) |>
-      select(x = date, y = valor) |>
+      select(x = date, y = variable) |>
       mutate(x = datetime_to_timestamp(x), y = round(y, 2))
 
     typechart <- ifelse(attr(data_unidad, "vr") == "Precipitación", "column", "spline")
@@ -263,27 +267,27 @@ function(input, output, session) {
 
   })
 
+  # observer de reporte
   observeEvent(input$reporte, {
 
-    data_unidad <- data_unidad()
+    data_unidad  <- data_unidad()
 
     meses <- c("Enero", "Febrero", "Marzo", "Abril",
                "Mayo", "Junio", "Julio", "Agosto",
                "Septiembre", "Octubre", "Noviembre", "Diciembre")
 
     datos <- data_unidad |>
-      mutate(
-        year = year(date),
-        x = meses[month(date)],
-        x = fct_inorder(x),
-        y = valor
-        )
+      select(date, variable) |>
+      mutate(group = year(date)) |>
+      mutate(x = month(date) - 1) |>
+      mutate(y = variable) |>
+      select(x, y, group)
 
     reprep <- function(n = 10, value1 = "a", value2 = "b"){
       c(rep(value1, n - 1), value2)
     }
 
-    ngroups   <- datos |> distinct(year) |> nrow()
+    ngroups   <- datos |> distinct(group) |> nrow()
     typechart <- ifelse(attr(datos, "vr") == "Precipitación", "column", "spline")
     mtdta     <- dparvar |>
       filter(desc == attr(data_unidad, "vr")) |>
@@ -292,27 +296,56 @@ function(input, output, session) {
     hc <- hchart(
       datos,
       typechart,
-      hcaes(x, y, group = year),
+      hcaes(x, y, group = group),
       color        = reprep(ngroups, "#DDDDDD", parametros$color),
       lineWidth    = reprep(ngroups, 2, 5),
       # showInLegend = reprep(ngroups, FALSE, TRUE),
       ) |>
-      hc_tooltip(table = TRUE, sort = TRUE) |>
-      hc_xAxis( title = list(text = "")) |>
-      hc_yAxis( title = list(text =  attr(data_unidad, "variable"))) |>
+      hc_tooltip(table = TRUE, sort = TRUE, valueDecimals = 3) |>
+      hc_xAxis(title = list(text = ""), categories = meses) |>
+      hc_yAxis(title = list(text = attr(datos, "vr"))) |>
       hc_caption(text = mtdta) |>
+      hc_plotOptions(spline = list(marker = list(enabled = FALSE))) |>
       hc_exporting(enabled = TRUE)
 
     hc
 
     un <- paste(as.character(attr(datos, "unit_name")), collapse = " ")
 
+    vb1 <- value_box(
+      "SPEI 12",
+      h2(HTML("0.34")),
+      span(bsicons::bs_icon("arrow-up"), "1.23 /", bsicons::bs_icon("arrow-down"), "-0.23"),
+      # showcase = bsicons::bs_icon("piggy-bank"),
+      class = "bg-danger"
+    )
+
+    vb2 <- value_box(
+      "EDDI",
+      h2(HTML("0.34")),
+      span(bsicons::bs_icon("arrow-up"), "1.23 /", bsicons::bs_icon("arrow-down"), "-0.23"),
+      class = "bg-warning"
+    )
+
+    vb3 <- value_box(
+      "Vegetación",
+      h2(HTML("0.34")),
+      span(bsicons::bs_icon("arrow-up"), "1.23 /", bsicons::bs_icon("arrow-down"), "-0.23"),
+      class = "bg-success"
+    )
+
     showModal(
       modalDialog(
         title =  un,
+        fluidRow(
+          column(width = 3, vb1),
+          column(width = 3, vb2),
+          column(width = 3, vb3),
+          column(width = 3, vb2),
+        ),
         hc,
         footer = tagList(downloadButton("descargar", "Descargar reporte"), modalButton("Cerrar")),
-        size = "l",
+        size = "xl",
         # c("m", "s", "l", "xl"),
         easyClose = TRUE,
         fade = TRUE
