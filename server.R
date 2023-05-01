@@ -4,7 +4,6 @@
 
 function(input, output, session) {
 
-  # main --------------------------------------------------------------------
   # mapa principal
   output$map <- renderLeaflet({
 
@@ -219,7 +218,7 @@ function(input, output, session) {
 
   })
 
-  # observer que escucha click para generar mini grafico
+  # observer que escucha click para _mostrar_ container mini grafico
   observeEvent(input$map_shape_click, {
 
     cli::cli_h3("observer de map_shape_click")
@@ -230,7 +229,7 @@ function(input, output, session) {
 
   })
 
-  # Este observer dice que si se cambia de unidad
+  # Este observer oculta container si se cambia de unidad
   # el mini gráfico se debe ocultar
   observeEvent(input$unidad, {
     updateCheckboxInput(session, "showchart", value = FALSE)
@@ -286,7 +285,6 @@ function(input, output, session) {
     reprep <- function(n = 10, value1 = "a", value2 = "b"){
       c(rep(value1, n - 1), value2)
     }
-
     ngroups   <- datos |> distinct(group) |> nrow()
     typechart <- ifelse(attr(datos, "vr") == "Precipitación", "column", "spline")
     mtdta     <- dparvar |>
@@ -306,47 +304,65 @@ function(input, output, session) {
       hc_yAxis(title = list(text = attr(datos, "vr"))) |>
       hc_caption(text = mtdta) |>
       hc_plotOptions(spline = list(marker = list(enabled = FALSE))) |>
-      hc_exporting(enabled = TRUE)
+      hc_exporting(enabled = TRUE) |>
+      hc_legend(layout = "vertical",  align = "right", verticalAlign = "middle") |>
+      hc_size(height = 350)
 
     hc
 
     un <- paste(as.character(attr(datos, "unit_name")), collapse = " ")
 
-    vb1 <- value_box(
-      "SPEI 12",
-      h2(HTML("0.34")),
-      span(bsicons::bs_icon("arrow-up"), "1.23 /", bsicons::bs_icon("arrow-down"), "-0.23"),
-      # showcase = bsicons::bs_icon("piggy-bank"),
-      class = "bg-danger"
-    )
+    data_unidad_g <- data_unidad |>
+      select(-code, -variable) |>
+      pivot_longer(cols = -date) |>
+      group_by(name) |>
+      summarise(
+        last = last(value, na_rm = TRUE),
+        maxi = max(value, na.rm = TRUE),
+        mini = min(value, na.rm = TRUE),
+        data = list(tibble(x = datetime_to_timestamp(date), y = round(value, 2)))
+      ) |>
+      mutate(
+        hc = map(data, function(d){
+          hchart(d, type = "line", color = "white",  lineWidth = 0.75) |>
+            hc_xAxis(crosshair = TRUE, type = "datetime") |>
+            hc_yAxis(crosshair = TRUE) |>
+            hc_tooltip(pointFormat = '<b>{point.y}</b>') |>
 
-    vb2 <- value_box(
-      "EDDI",
-      h2(HTML("0.34")),
-      span(bsicons::bs_icon("arrow-up"), "1.23 /", bsicons::bs_icon("arrow-down"), "-0.23"),
-      class = "bg-warning"
-    )
+            hc_add_theme(hc_theme_sparkline_vb()) |>
+            hc_size(height = 100) |>
+            hc_plotOptions(
+              series = list(
+                states = list(
+                  hover = list(
+                    enabled = FALSE
+                  )
+                )
+              )
+            )
+        })
+      ) |>
+      mutate(across(where(is.numeric), round, 2))
 
-    vb3 <- value_box(
-      "Vegetación",
-      h2(HTML("0.34")),
-      span(bsicons::bs_icon("arrow-up"), "1.23 /", bsicons::bs_icon("arrow-down"), "-0.23"),
-      class = "bg-success"
-    )
+    value_boxes <- data_unidad_g |>
+      pmap(function(name, last, maxi, mini, data, hc){
+        value_box(
+          str_replace_all(str_to_upper(name), "_", " "),
+          h2(HTML(last)),
+          span(bsicons::bs_icon("arrow-up"), maxi, "/", bsicons::bs_icon("arrow-down"), mini),
+          hc
+        )
+      }) |>
+      map(column, width = 3) |>
+      htmltools::tagList()
 
     showModal(
       modalDialog(
-        title =  un,
-        fluidRow(
-          column(width = 3, vb1),
-          column(width = 3, vb2),
-          column(width = 3, vb3),
-          column(width = 3, vb2),
-        ),
+        title =  htmltools::tagList(un, tags$small(str_glue("({f1} a {f2})"))),
+        fluidRow(value_boxes),
         hc,
-        footer = tagList(downloadButton("descargar", "Descargar reporte"), modalButton("Cerrar")),
+        footer = tagList(downloadButton("descargar", "Descargar reporte", class = "btn-primary btn-sm")),
         size = "xl",
-        # c("m", "s", "l", "xl"),
         easyClose = TRUE,
         fade = TRUE
       )
