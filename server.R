@@ -168,15 +168,54 @@ function(input, output, session) {
 
     cli::cli_h3("observer de mapa")
 
-    colorData <- data_geo2[["variable"]]
-
     cols <- dparvar |>
       filter(variable == input$variable) |>
       pull(cols) |>
       str_split(", ", simplify = TRUE) |>
       as.vector()
 
-    pal <- colorBin(cols, colorData, 10, pretty = TRUE, reverse = FALSE)
+   # scales::show_col(cols)
+
+    if(str_detect(input$variable, "spi_")){
+
+      colorData <- cut(
+        data_geo2[["variable"]],
+        breaks = c(-Inf, -2, -1.6, -1.3, -0.8, Inf),
+        labels = c("Sequía excepcional", "Sequía extrema", "Sequía severa", "Sequía moderada", "Anormalmente seco")
+      )
+
+      data_geo2[["variable_cat"]] <- colorData
+
+      pal <- colorFactor(cols, colorData, levels = levels(colorData))
+
+    } else if (str_detect(input$variable, "spei_")){
+
+      colorData <- cut(
+        data_geo2[["variable"]],
+        breaks = c(-Inf, -2, -1.5, -1, 1, 1.5, 2, Inf),
+        labels = c("Extremadamente seco", "Severamente seco", "Moderadamente seco",
+                   "Normal",
+                   "Moderamente húmedo", "Muy húmedo", "Extremadamente húmedo")
+      )
+
+      data_geo2[["variable_cat"]] <- colorData
+
+      pal <- colorFactor(cols, colorData, levels = levels(colorData))
+
+    } else {
+
+      colorData <- data_geo2[["variable"]]
+      pal <- colorBin(cols, colorData, 10, pretty = TRUE, reverse = FALSE)
+
+    }
+
+    if(str_detect(input$variable, "spei_|spi_")) {
+      lb <- ~paste0(nombre_unidad , " ",  round(variable, 3), " (", variable_cat, ")")
+      fc <- ~pal(`variable_cat`)
+    } else {
+      lb <-  ~paste0(nombre_unidad , " ",  round(variable, 3))
+      fc <- ~pal(`variable`)
+    }
 
     leafletProxy("map") |>
       # leaflet() |> addTiles() |>
@@ -184,14 +223,19 @@ function(input, output, session) {
       clearTopoJSON() |>
       leaflet::addPolygons(
         data = data_geo2,
-        fillColor = ~pal(`variable`),
+        fillColor = fc,
         weight = .5,
         dashArray = "3",
         stroke = NULL,
         fillOpacity = 0.7,
         layerId = ~id_unidad,
-        label = ~paste0(nombre_unidad , " ",  round(variable, 3)),
-        highlightOptions = highlightOptions(color = "white", weight = 4,fillColor = parametros$color,bringToFront = TRUE),
+        label = lb,
+        highlightOptions = highlightOptions(
+          color = "white",
+          weight = 4,
+          fillColor = parametros$color,
+          bringToFront = TRUE
+          ),
         labelOptions = labelOptions(
           # offset = c(-20, -20),
           style = list(
@@ -202,7 +246,6 @@ function(input, output, session) {
             "border-color" = "rgba(0,0,0,0.15)"
           )
         )
-        # popup = ~paste0(nombre_unidad , ": ",  round(valor, 3))
       ) |>
       addLegend(
         position  = "topright",
