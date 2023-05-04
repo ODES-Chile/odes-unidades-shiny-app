@@ -57,22 +57,18 @@ function(input, output, session) {
   data_coropleta <- reactive({
 
     cli::cli_h3("data_coropleta")
-    cli::cli_alert_info("unidad   {input$unidad}")
-    cli::cli_alert_info("variable {input$variable}")
-    cli::cli_alert_info("fecha    {input$fecha}")
+    cli::cli_alert_info("unidad {input$unidad}")
+    cli::cli_alert_info("fecha  {input$fecha[[2]]}")
 
     u <- input$unidad
-    v <- input$variable
     f <- ymd(input$fecha)[2] # toma el valor máximo
-
-    vars <- c("date", "valor", unidad_key[[u]])
 
     data_coropleta <- tbl(sql_con(), "data_clima_sequia") |>
       # filter(year(date) == year(f), month(date) == month(f), day(date) == day(f)) |>
       filter(date == f) |>
       filter(unit == u) |>
-      rename(!!unidad_key[[u]] := code, valor := v) |>
-      select(all_of(vars)) |>
+      rename(!!unidad_key[[u]] := code) |>
+      # select(all_of(vars)) |>
       collect()
 
     # glimpse(data_coropleta)
@@ -86,33 +82,13 @@ function(input, output, session) {
     data_coropleta <- data_coropleta()
 
     cli::cli_h3("data_geo")
-    cli::cli_alert_info("unidad    {input$unidad}")
-    cli::cli_alert_info("macrozona {input$macrozona}")
+    cli::cli_alert_info("unidad {input$unidad}")
 
-    mc <- input$macrozona
     u  <- input$unidad
     un <- nombre_key[[u]]
     uk <- unidad_key[[u]]
 
-    data_geo       <- sf::read_sf(str_glue("data/vectorial/raw/{u}.gpkg"))
-
-    # if(mc != "todas") {
-
-      units <- dunits |>
-        filter(macrozona %in% input$macrozona) |>
-        filter(unit == input$unidad) |>
-        pull(code)
-
-      rs <- data_geo[[unidad_key[[u]]]] %in% units
-
-      data_geo <- data_geo |>
-        filter(rs)
-
-#     } else {
-#
-#       data_geo <- sf::read_sf(str_glue("data/vectorial/min/{u}1000.gpkg"))
-#
-#     }
+    data_geo <- sf::read_sf(str_glue("data/vectorial/raw/{u}.gpkg"))
 
     data_geo <- data_geo |>
       left_join(data_coropleta, by = unidad_key[[u]]) |>
@@ -127,17 +103,39 @@ function(input, output, session) {
 
   })
 
+  data_geo2 <- reactive({
+
+    data_geo <- data_geo()
+
+    cli::cli_h3("data_geo2 (macrozonas + variable)")
+    cli::cli_alert_info("macrozona {input$macrozona}")
+    cli::cli_alert_info("variable  {input$variable}")
+
+    v  <- input$variable
+    mc <- input$macrozona
+
+    units <- dunits |>
+      filter(macrozona %in% input$macrozona) |>
+      filter(unit == input$unidad) |>
+      pull(code)
+
+    data_geo2 <- data_geo |>
+      filter(id_unidad %in% units) |>
+      rename(variable := !!v)
+
+    data_geo2
+
+  })
+
   data_unidad <- reactive({
 
     cli::cli_h3("data_unidad")
     cli::cli_alert_info("unidad   {input$unidad}")
     cli::cli_alert_info("idunidad {input$map_shape_click$id}")
-    cli::cli_alert_info("variable {input$variable}")
 
     if(is.null(input$map_shape_click$id)) return(tibble())
 
     id <- input$map_shape_click$id
-    v  <- input$variable
     u  <- input$unidad
     f1 <- ymd(input$fecha)[1]
     f2 <- ymd(input$fecha)[2]
@@ -152,15 +150,12 @@ function(input, output, session) {
       filter(f1 <= date) |>
       filter(date <= f2) |>
       # rename(variable := v) |>
-      select(date, code, unique(c("spei_12", "spei_24", "tas", "pre", v))) |>
+      # select(date, code, unique(c("spei_12", "spei_24", "tas", "pre", v))) |>
       arrange(date) |>
       collect()
 
     attr(data_unidad, "vr")        <- vr
     attr(data_unidad, "unit_name") <- unit_name
-
-    data_unidad <- data_unidad |>
-      mutate(variable := .data[[v]])
 
     data_unidad
 
@@ -169,11 +164,11 @@ function(input, output, session) {
   # observer de mapa
   observe({
 
-    data_geo <- data_geo()
+    data_geo2 <- data_geo2()
 
     cli::cli_h3("observer de mapa")
 
-    colorData <- data_geo[["valor"]]
+    colorData <- data_geo2[["variable"]]
 
     cols <- dparvar |>
       filter(variable == input$variable) |>
@@ -188,14 +183,14 @@ function(input, output, session) {
       clearShapes() |>
       clearTopoJSON() |>
       leaflet::addPolygons(
-        data = data_geo,
-        fillColor = ~pal(`valor`),
+        data = data_geo2,
+        fillColor = ~pal(`variable`),
         weight = .5,
         dashArray = "3",
         stroke = NULL,
         fillOpacity = 0.7,
         layerId = ~id_unidad,
-        label = ~paste0(nombre_unidad , " ",  round(valor, 3)),
+        label = ~paste0(nombre_unidad , " ",  round(variable, 3)),
         highlightOptions = highlightOptions(color = "white", weight = 4,fillColor = parametros$color,bringToFront = TRUE),
         labelOptions = labelOptions(
           # offset = c(-20, -20),
@@ -227,10 +222,9 @@ function(input, output, session) {
   observeEvent(input$map_shape_click, {
 
     cli::cli_h3("observer de map_shape_click")
-    cli::cli_alert_info("id       {input$map_shape_click$id}")
+    cli::cli_alert_info("id {input$map_shape_click$id}")
 
     updateCheckboxInput(session, "showchart", value = TRUE)
-
 
   })
 
@@ -243,13 +237,17 @@ function(input, output, session) {
   # observer de mini grafico
   observe({
 
-    cli::cli_h3("observer de mini grafico")
-
     data_unidad <- data_unidad()
+
+    cli::cli_h3("observer de mini grafico")
+    cli::cli_alert_info("variable {input$variable}")
+
+    v <- input$variable
 
     if(!input$showchart) return(TRUE)
 
     datos <-  data_unidad |>
+      rename(variable := !!v) |>
       select(date, variable) |>
       filter(complete.cases(data_unidad)) |>
       select(x = date, y = variable) |>
@@ -277,6 +275,13 @@ function(input, output, session) {
     cli::cli_h3("observer reporte")
 
     data_unidad  <- data_unidad()
+
+    # data_unidad <- data_unidad |>
+
+    data_unidad[["variable"]] <- data_unidad[[input$variable]]
+
+    data_unidad <- data_unidad |>
+      select(date, code, unique(c("spei_12", "spei_24", "tas", "pre", "variable")))
 
     fs <- data_unidad |>
       summarise(min(date), max(date)) |>
@@ -342,7 +347,7 @@ function(input, output, session) {
             hc_tooltip(pointFormat = '<b>{point.y}</b>') |>
 
             hc_add_theme(hc_theme_sparkline_vb()) |>
-            hc_size(height = 100) |>
+            hc_size(height = 80) |>
             hc_plotOptions(
               series = list(
                 states = list(
@@ -372,6 +377,7 @@ function(input, output, session) {
       modalDialog(
         title =  htmltools::tagList(un, tags$small(str_glue("({fs[1]} a {fs[2]})"))),
         fluidRow(value_boxes),
+        tags$br(),
         hc,
         footer = tagList(
           # downloadButton("descargar_reporte", "Descargar reporte", class = "btn-primary btn-sm"),
@@ -420,13 +426,9 @@ function(input, output, session) {
       nombre_descarga_datos()
     },
     content = function(file) {
-      tempdata <- file.path(tempdir(), "datos.xlsx")
-
+      tempdata    <- file.path(tempdir(), "datos.xlsx")
       data_unidad <- data_unidad()
-      dout <- data_unidad |>
-        select(-variable)
-
-      writexl::write_xlsx(dout, file)
+      writexl::write_xlsx(data_unidad, file)
 
     }
   )
