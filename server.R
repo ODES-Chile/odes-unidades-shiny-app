@@ -1,5 +1,5 @@
 # input <- list(unidad = "distrito_censal", variable = "tas",  fecha = "2018-03-01")
-# input <- list(macrozona = "zona central", unidad = "comunas", variable = "spei_12",  fecha = c("2010-04-01", "20181201"), map_shape_click = list(id = "08"))
+# input <- list(macrozona = "zona central", unidad = "regiones", variable = "spei_12",  fecha = c("2010-04-01", "2018-12-01"), map_shape_click = list(id = "08"))
 # source("global.R")
 
 function(input, output, session) {
@@ -65,12 +65,14 @@ function(input, output, session) {
     v <- input$variable
     f <- ymd(input$fecha)[2] # toma el valor máximo
 
+    vars <- c("date", "valor", unidad_key[[u]])
+
     data_coropleta <- tbl(sql_con(), "data_clima_sequia") |>
       # filter(year(date) == year(f), month(date) == month(f), day(date) == day(f)) |>
       filter(date == f) |>
       filter(unit == u) |>
       rename(!!unidad_key[[u]] := code, valor := v) |>
-      select(date, all_of(unidad_key[[u]]), valor) |>
+      select(all_of(vars)) |>
       collect()
 
     # glimpse(data_coropleta)
@@ -81,6 +83,8 @@ function(input, output, session) {
 
   data_geo <- reactive({
 
+    data_coropleta <- data_coropleta()
+
     cli::cli_h3("data_geo")
     cli::cli_alert_info("unidad    {input$unidad}")
     cli::cli_alert_info("macrozona {input$macrozona}")
@@ -90,7 +94,6 @@ function(input, output, session) {
     un <- nombre_key[[u]]
     uk <- unidad_key[[u]]
 
-    data_coropleta <- data_coropleta()
     data_geo       <- sf::read_sf(str_glue("data/vectorial/raw/{u}.gpkg"))
 
     # if(mc != "todas") {
@@ -166,9 +169,9 @@ function(input, output, session) {
   # observer de mapa
   observe({
 
-    cli::cli_h3("observer de mapa")
-
     data_geo <- data_geo()
+
+    cli::cli_h3("observer de mapa")
 
     colorData <- data_geo[["valor"]]
 
@@ -271,7 +274,14 @@ function(input, output, session) {
   # observer de reporte
   observeEvent(input$reporte, {
 
+    cli::cli_h3("observer reporte")
+
     data_unidad  <- data_unidad()
+
+    fs <- data_unidad |>
+      summarise(min(date), max(date)) |>
+      pivot_longer(cols = everything()) |>
+      deframe()
 
     meses <- c("Enero", "Febrero", "Marzo", "Abril",
                "Mayo", "Junio", "Julio", "Agosto",
@@ -306,7 +316,7 @@ function(input, output, session) {
       hc_yAxis(title = list(text = attr(datos, "vr"))) |>
       hc_caption(text = mtdta) |>
       hc_plotOptions(spline = list(marker = list(enabled = FALSE))) |>
-      hc_exporting(enabled = TRUE) |>
+      # hc_exporting(enabled = TRUE) |>
       hc_legend(layout = "vertical",  align = "right", verticalAlign = "middle") |>
       hc_size(height = 350)
 
@@ -360,10 +370,13 @@ function(input, output, session) {
 
     showModal(
       modalDialog(
-        title =  htmltools::tagList(un, tags$small(str_glue("({f1} a {f2})"))),
+        title =  htmltools::tagList(un, tags$small(str_glue("({fs[1]} a {fs[2]})"))),
         fluidRow(value_boxes),
         hc,
-        footer = tagList(downloadButton("descargar", "Descargar reporte", class = "btn-primary btn-sm")),
+        footer = tagList(
+          # downloadButton("descargar_reporte", "Descargar reporte", class = "btn-primary btn-sm"),
+          downloadButton("descargar_datos", "Descargar datos", class = "btn-primary btn-sm")
+          ),
         size = "xl",
         easyClose = TRUE,
         fade = TRUE
@@ -373,7 +386,7 @@ function(input, output, session) {
   })
 
   # https://shiny.rstudio.com/articles/generating-reports.html
-  output$descargar <- downloadHandler(
+  output$descargar_reporte <- downloadHandler(
     filename = "report.html",
     content = function(file) {
       tempReport <- file.path(tempdir(), "report.Rmd")
@@ -389,6 +402,32 @@ function(input, output, session) {
                         params = params,
                         envir = new.env(parent = globalenv())
       )
+    }
+  )
+
+  nombre_descarga_datos <- reactive({
+
+    unitname <- dunits |>
+      filter(unit == input$unidad, code == input$map_shape_click$id) |>
+      pull(unit_name)
+
+    str_glue("{unitname}_{input$fecha[[1]]}-{input$fecha[[2]]}.xlsx")
+
+  })
+
+  output$descargar_datos <- downloadHandler(
+    filename = function() {
+      nombre_descarga_datos()
+    },
+    content = function(file) {
+      tempdata <- file.path(tempdir(), "datos.xlsx")
+
+      data_unidad <- data_unidad()
+      dout <- data_unidad |>
+        select(-variable)
+
+      writexl::write_xlsx(dout, file)
+
     }
   )
 
