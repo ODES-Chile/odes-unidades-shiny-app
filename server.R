@@ -127,6 +127,7 @@ function(input, output, session) {
   data_unidad <- reactive({
 
     cli::cli_h3("data_unidad")
+    cli::cli_alert_info("unidad   {input$unidad}")
     cli::cli_alert_info("idunidad {input$map_shape_click$id}")
     cli::cli_alert_info("variable {input$variable}")
 
@@ -134,6 +135,7 @@ function(input, output, session) {
 
     id <- input$map_shape_click$id
     v  <- input$variable
+    u  <- input$unidad
     f1 <- ymd(input$fecha)[1]
     f2 <- ymd(input$fecha)[2]
 
@@ -143,7 +145,7 @@ function(input, output, session) {
       pull(unit_name)
 
     data_unidad <- tbl(sql_con(), "data_clima_sequia") |>
-      filter(code == id) |>
+      filter(code == id, unit == u) |>
       filter(f1 <= date) |>
       filter(date <= f2) |>
       # rename(variable := v) |>
