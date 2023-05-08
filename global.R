@@ -1,20 +1,19 @@
 # packages ----------------------------------------------------------------
-# SHINY
+# shiny
 library(shiny)
 library(leaflet)
 library(leaflet.providers)
 library(highcharter) # remotes::install_github("jbkunst/highcharter")
 library(shinyWidgets)
 library(bslib)
-library(shinyWidgets)
 
-# DATA
+# data
 library(tidyverse)
 library(lubridate)
 library(RPostgres)
 library(pool)
 
-# OTHERS
+# helpers
 library(cli)
 
 cli::cli_h1("Start global.R")

@@ -1,5 +1,5 @@
 # input <- list(unidad = "distrito_censal", variable = "tas",  fecha = "2018-03-01")
-# input <- list(macrozona = "zona central", unidad = "comunas", variable = "spei_12",  fecha = c("2010-04-01", "20181201"), map_shape_click = list(id = "08"))
+# input <- list(macrozona = "zona central", unidad = "regiones", variable = "spei_12",  fecha = c("2010-04-01", "2018-12-01"), map_shape_click = list(id = "08"))
 # source("global.R")
 
 function(input, output, session) {
@@ -57,20 +57,18 @@ function(input, output, session) {
   data_coropleta <- reactive({
 
     cli::cli_h3("data_coropleta")
-    cli::cli_alert_info("unidad   {input$unidad}")
-    cli::cli_alert_info("variable {input$variable}")
-    cli::cli_alert_info("fecha    {input$fecha}")
+    cli::cli_alert_info("unidad {input$unidad}")
+    cli::cli_alert_info("fecha  {input$fecha[[2]]}")
 
     u <- input$unidad
-    v <- input$variable
     f <- ymd(input$fecha)[2] # toma el valor máximo
 
     data_coropleta <- tbl(sql_con(), "data_clima_sequia") |>
       # filter(year(date) == year(f), month(date) == month(f), day(date) == day(f)) |>
       filter(date == f) |>
       filter(unit == u) |>
-      rename(!!unidad_key[[u]] := code, valor := v) |>
-      select(date, all_of(unidad_key[[u]]), valor) |>
+      rename(!!unidad_key[[u]] := code) |>
+      # select(all_of(vars)) |>
       collect()
 
     # glimpse(data_coropleta)
@@ -81,35 +79,16 @@ function(input, output, session) {
 
   data_geo <- reactive({
 
-    cli::cli_h3("data_geo")
-    cli::cli_alert_info("unidad    {input$unidad}")
-    cli::cli_alert_info("macrozona {input$macrozona}")
+    data_coropleta <- data_coropleta()
 
-    mc <- input$macrozona
+    cli::cli_h3("data_geo")
+    cli::cli_alert_info("unidad {input$unidad}")
+
     u  <- input$unidad
     un <- nombre_key[[u]]
     uk <- unidad_key[[u]]
 
-    data_coropleta <- data_coropleta()
-    data_geo       <- sf::read_sf(str_glue("data/vectorial/raw/{u}.gpkg"))
-
-    # if(mc != "todas") {
-
-      units <- dunits |>
-        filter(macrozona %in% input$macrozona) |>
-        filter(unit == input$unidad) |>
-        pull(code)
-
-      rs <- data_geo[[unidad_key[[u]]]] %in% units
-
-      data_geo <- data_geo |>
-        filter(rs)
-
-#     } else {
-#
-#       data_geo <- sf::read_sf(str_glue("data/vectorial/min/{u}1000.gpkg"))
-#
-#     }
+    data_geo <- sf::read_sf(str_glue("data/vectorial/raw/{u}.gpkg"))
 
     data_geo <- data_geo |>
       left_join(data_coropleta, by = unidad_key[[u]]) |>
@@ -124,16 +103,40 @@ function(input, output, session) {
 
   })
 
+  data_geo2 <- reactive({
+
+    data_geo <- data_geo()
+
+    cli::cli_h3("data_geo2 (macrozonas + variable)")
+    cli::cli_alert_info("macrozona {input$macrozona}")
+    cli::cli_alert_info("variable  {input$variable}")
+
+    v  <- input$variable
+    mc <- input$macrozona
+
+    units <- dunits |>
+      filter(macrozona %in% input$macrozona) |>
+      filter(unit == input$unidad) |>
+      pull(code)
+
+    data_geo2 <- data_geo |>
+      filter(id_unidad %in% units) |>
+      rename(variable := !!v)
+
+    data_geo2
+
+  })
+
   data_unidad <- reactive({
 
     cli::cli_h3("data_unidad")
+    cli::cli_alert_info("unidad   {input$unidad}")
     cli::cli_alert_info("idunidad {input$map_shape_click$id}")
-    cli::cli_alert_info("variable {input$variable}")
 
     if(is.null(input$map_shape_click$id)) return(tibble())
 
     id <- input$map_shape_click$id
-    v  <- input$variable
+    u  <- input$unidad
     f1 <- ymd(input$fecha)[1]
     f2 <- ymd(input$fecha)[2]
 
@@ -143,19 +146,16 @@ function(input, output, session) {
       pull(unit_name)
 
     data_unidad <- tbl(sql_con(), "data_clima_sequia") |>
-      filter(code == id) |>
+      filter(code == id, unit == u) |>
       filter(f1 <= date) |>
       filter(date <= f2) |>
       # rename(variable := v) |>
-      select(date, code, unique(c("spei_12", "spei_24", "tas", "pre", v))) |>
+      # select(date, code, unique(c("spei_12", "spei_24", "tas", "pre", v))) |>
       arrange(date) |>
       collect()
 
     attr(data_unidad, "vr")        <- vr
     attr(data_unidad, "unit_name") <- unit_name
-
-    data_unidad <- data_unidad |>
-      mutate(variable := .data[[v]])
 
     data_unidad
 
@@ -164,11 +164,9 @@ function(input, output, session) {
   # observer de mapa
   observe({
 
+    data_geo2 <- data_geo2()
+
     cli::cli_h3("observer de mapa")
-
-    data_geo <- data_geo()
-
-    colorData <- data_geo[["valor"]]
 
     cols <- dparvar |>
       filter(variable == input$variable) |>
@@ -176,22 +174,68 @@ function(input, output, session) {
       str_split(", ", simplify = TRUE) |>
       as.vector()
 
-    pal <- colorBin(cols, colorData, 10, pretty = TRUE, reverse = FALSE)
+   # scales::show_col(cols)
+
+    if(str_detect(input$variable, "spi_")){
+
+      colorData <- cut(
+        data_geo2[["variable"]],
+        breaks = c(-Inf, -2, -1.6, -1.3, -0.8, Inf),
+        labels = c("Sequía excepcional", "Sequía extrema", "Sequía severa", "Sequía moderada", "Anormalmente seco")
+      )
+
+      data_geo2[["variable_cat"]] <- colorData
+
+      pal <- colorFactor(cols, colorData, levels = levels(colorData))
+
+    } else if (str_detect(input$variable, "spei_")){
+
+      colorData <- cut(
+        data_geo2[["variable"]],
+        breaks = c(-Inf, -2, -1.5, -1, 1, 1.5, 2, Inf),
+        labels = c("Extremadamente seco", "Severamente seco", "Moderadamente seco",
+                   "Normal",
+                   "Moderamente húmedo", "Muy húmedo", "Extremadamente húmedo")
+      )
+
+      data_geo2[["variable_cat"]] <- colorData
+
+      pal <- colorFactor(cols, colorData, levels = levels(colorData))
+
+    } else {
+
+      colorData <- data_geo2[["variable"]]
+      pal <- colorBin(cols, colorData, 10, pretty = TRUE, reverse = FALSE)
+
+    }
+
+    if(str_detect(input$variable, "spei_|spi_")) {
+      lb <- ~paste0(nombre_unidad , " ",  round(variable, 3), " (", variable_cat, ")")
+      fc <- ~pal(`variable_cat`)
+    } else {
+      lb <-  ~paste0(nombre_unidad , " ",  round(variable, 3))
+      fc <- ~pal(`variable`)
+    }
 
     leafletProxy("map") |>
       # leaflet() |> addTiles() |>
       clearShapes() |>
       clearTopoJSON() |>
       leaflet::addPolygons(
-        data = data_geo,
-        fillColor = ~pal(`valor`),
+        data = data_geo2,
+        fillColor = fc,
         weight = .5,
         dashArray = "3",
         stroke = NULL,
         fillOpacity = 0.7,
         layerId = ~id_unidad,
-        label = ~paste0(nombre_unidad , " ",  round(valor, 3)),
-        highlightOptions = highlightOptions(color = "white", weight = 4,fillColor = parametros$color,bringToFront = TRUE),
+        label = lb,
+        highlightOptions = highlightOptions(
+          color = "white",
+          weight = 4,
+          fillColor = parametros$color,
+          bringToFront = TRUE
+          ),
         labelOptions = labelOptions(
           # offset = c(-20, -20),
           style = list(
@@ -202,7 +246,6 @@ function(input, output, session) {
             "border-color" = "rgba(0,0,0,0.15)"
           )
         )
-        # popup = ~paste0(nombre_unidad , ": ",  round(valor, 3))
       ) |>
       addLegend(
         position  = "topright",
@@ -222,10 +265,9 @@ function(input, output, session) {
   observeEvent(input$map_shape_click, {
 
     cli::cli_h3("observer de map_shape_click")
-    cli::cli_alert_info("id       {input$map_shape_click$id}")
+    cli::cli_alert_info("id {input$map_shape_click$id}")
 
     updateCheckboxInput(session, "showchart", value = TRUE)
-
 
   })
 
@@ -238,13 +280,17 @@ function(input, output, session) {
   # observer de mini grafico
   observe({
 
-    cli::cli_h3("observer de mini grafico")
-
     data_unidad <- data_unidad()
+
+    cli::cli_h3("observer de mini grafico")
+    cli::cli_alert_info("variable {input$variable}")
+
+    v <- input$variable
 
     if(!input$showchart) return(TRUE)
 
     datos <-  data_unidad |>
+      rename(variable := !!v) |>
       select(date, variable) |>
       filter(complete.cases(data_unidad)) |>
       select(x = date, y = variable) |>
@@ -269,7 +315,21 @@ function(input, output, session) {
   # observer de reporte
   observeEvent(input$reporte, {
 
+    cli::cli_h3("observer reporte")
+
     data_unidad  <- data_unidad()
+
+    # data_unidad <- data_unidad |>
+
+    data_unidad[["variable"]] <- data_unidad[[input$variable]]
+
+    data_unidad <- data_unidad |>
+      select(date, code, unique(c("spei_12", "spei_24", "tas", "pre", "variable")))
+
+    fs <- data_unidad |>
+      summarise(min(date), max(date)) |>
+      pivot_longer(cols = everything()) |>
+      deframe()
 
     meses <- c("Enero", "Febrero", "Marzo", "Abril",
                "Mayo", "Junio", "Julio", "Agosto",
@@ -304,7 +364,7 @@ function(input, output, session) {
       hc_yAxis(title = list(text = attr(datos, "vr"))) |>
       hc_caption(text = mtdta) |>
       hc_plotOptions(spline = list(marker = list(enabled = FALSE))) |>
-      hc_exporting(enabled = TRUE) |>
+      # hc_exporting(enabled = TRUE) |>
       hc_legend(layout = "vertical",  align = "right", verticalAlign = "middle") |>
       hc_size(height = 350)
 
@@ -330,7 +390,7 @@ function(input, output, session) {
             hc_tooltip(pointFormat = '<b>{point.y}</b>') |>
 
             hc_add_theme(hc_theme_sparkline_vb()) |>
-            hc_size(height = 100) |>
+            hc_size(height = 80) |>
             hc_plotOptions(
               series = list(
                 states = list(
@@ -358,10 +418,14 @@ function(input, output, session) {
 
     showModal(
       modalDialog(
-        title =  htmltools::tagList(un, tags$small(str_glue("({f1} a {f2})"))),
+        title =  htmltools::tagList(un, tags$small(str_glue("({fs[1]} a {fs[2]})"))),
         fluidRow(value_boxes),
+        tags$br(),
         hc,
-        footer = tagList(downloadButton("descargar", "Descargar reporte", class = "btn-primary btn-sm")),
+        footer = tagList(
+          # downloadButton("descargar_reporte", "Descargar reporte", class = "btn-primary btn-sm"),
+          downloadButton("descargar_datos", "Descargar datos", class = "btn-primary btn-sm")
+          ),
         size = "xl",
         easyClose = TRUE,
         fade = TRUE
@@ -371,7 +435,7 @@ function(input, output, session) {
   })
 
   # https://shiny.rstudio.com/articles/generating-reports.html
-  output$descargar <- downloadHandler(
+  output$descargar_reporte <- downloadHandler(
     filename = "report.html",
     content = function(file) {
       tempReport <- file.path(tempdir(), "report.Rmd")
@@ -387,6 +451,28 @@ function(input, output, session) {
                         params = params,
                         envir = new.env(parent = globalenv())
       )
+    }
+  )
+
+  nombre_descarga_datos <- reactive({
+
+    unitname <- dunits |>
+      filter(unit == input$unidad, code == input$map_shape_click$id) |>
+      pull(unit_name)
+
+    str_glue("{unitname}_{input$fecha[[1]]}-{input$fecha[[2]]}.xlsx")
+
+  })
+
+  output$descargar_datos <- downloadHandler(
+    filename = function() {
+      nombre_descarga_datos()
+    },
+    content = function(file) {
+      tempdata    <- file.path(tempdir(), "datos.xlsx")
+      data_unidad <- data_unidad()
+      writexl::write_xlsx(data_unidad, file)
+
     }
   )
 
