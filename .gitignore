@@ -39,3 +39,10 @@ vignettes/*.pdf
 .Renviron
 rsconnect/shinyapps.io/jbkunst/odes-unidades-shiny-app.dcf
 rsconnect/shinyapps.io/jbkunst/odes-unidades-shiny-app.dcf
+data/vectorial/raw/comunas.gpkg
+data/vectorial/raw/cuencas.gpkg
+data/vectorial/raw/distrito_censal.gpkg
+data/vectorial/raw/provincias.gpkg
+data/vectorial/raw/regiones.gpkg
+data/vectorial/raw/subcuencas.gpkg
+data/vectorial/raw/subsubcuencas.gpkg
