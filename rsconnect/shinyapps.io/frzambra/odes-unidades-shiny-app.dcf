@@ -1,0 +1,13 @@
+name: odes-unidades-shiny-app
+title: odes-unidades-shiny-app
+username:
+account: frzambra
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 9059538
+bundleId: 7192463
+url: https://frzambra.shinyapps.io/odes-unidades-shiny-app/
+when: 1683606600.9403
+lastSyncTime: 1683606600.94033
+asMultiple: FALSE
+asStatic: FALSE
