@@ -38,12 +38,16 @@ library(sf)
 # })
 
 # variables ---------------------------------------------------------------
-archivos <- fs::dir_ls("data/vectorial/raw/")
+# archivos <- fs::dir_ls("data/vectorial/raw/")
+archivos <- fs::dir_ls("data/vectorial/min/")
 archivos
 
+# tipos <- archivos |>
+#   str_remove(".*raw/") |>
+#   str_remove("\\.gpkg")
 tipos <- archivos |>
-  str_remove(".*raw/") |>
-  str_remove("\\.gpkg")
+  basename() |>
+  str_remove("_sim\\.gpkg")
 tipos
 
 columna_id <- list(
@@ -82,6 +86,8 @@ dunits <- map2_df(archivos, tipos, function(fn = "data/vectorial/raw/cuencas.gpk
   d
 
 })
+
+dunits
 
 # leemos las macrozonas para realizar el st_join
 mc1 <- sf::read_sf("data/macro_zona_buf.gpkg")
