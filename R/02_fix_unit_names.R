@@ -21,7 +21,7 @@ columna_id <- list(
   subsubcuencas = "cod_ssubc"
 )
 
-walk(archivos, function(fn = "data/nombres/distritos_censal.xlsx"){
+walk(archivos, function(fn = "data/nombres/distrito_censal.xlsx"){
 
   unit <- fn |>
     basename() |>
@@ -33,8 +33,12 @@ walk(archivos, function(fn = "data/nombres/distritos_censal.xlsx"){
     select(1, 2) |>
     set_names(c(columna_id[[unit]], columna_nombre[[unit]]))
 
-  fngpk <- fs::dir_ls("data/vectorial/raw/") |>
-    str_subset(str_c("/", unit))
+  # fngpk <- fs::dir_ls("data/vectorial/raw/") |>
+  #   str_subset(str_c("/", unit))
+
+  fngpk <- fs::dir_ls("data/vectorial/min/") |>
+    str_subset(str_c("/", unit)) |>
+    str_subset("_sim")
 
   l <- sf::read_sf(fngpk)
 
