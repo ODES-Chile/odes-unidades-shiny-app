@@ -88,7 +88,8 @@ function(input, output, session) {
     un <- nombre_key[[u]]
     uk <- unidad_key[[u]]
 
-    data_geo <- sf::read_sf(str_glue("data/vectorial/raw/{u}.gpkg"))
+    # data_geo <- sf::read_sf(str_glue("data/vectorial/raw/{u}.gpkg"))
+    data_geo <- sf::read_sf(str_glue("data/vectorial/min/{u}_sim.gpkg"))
 
     data_geo <- data_geo |>
       left_join(data_coropleta, by = unidad_key[[u]]) |>
