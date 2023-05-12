@@ -111,22 +111,27 @@ opt_fecha <- tbl(sql_con(), "data_clima_sequia") |>
 #   names()
 
 opt_variable <- list(
-  "Demanda evaporativa de la atmosfera" = "pet",
-  "Precipitación" = "pre",
-  "Temperatura" ="tas",
-  "Temperatura Mínima" ="tasmin",
-  "Temperatura Máxima" ="tasmax",
-  "SPEI 1 mes" = "spei_1",
-  "SPEI 3 meses" = "spei_3",
-  "SPEI 6 meses" = "spei_6",
-  "SPEI 12 meses" = "spei_12",
-  "SPEI 24 meses" = "spei_24",
-  "SPI 1 mes" = "spi_1",
-  "SPI 3 meses" = "spi_3",
-  "SPI 6 meses" = "spi_6",
-  "SPI 12 meses" = "spi_12",
-  "SPI 24 meses" = "spi_24"
-)
+  "Variables Meteorológicas" = list(
+    "Demanda evaporativa de la atmosfera" = "pet",
+    "Precipitación" = "pre",
+    "Temperatura" ="tas",
+    "Temperatura Mínima" ="tasmin",
+    "Temperatura Máxima" ="tasmax"
+    ),
+
+  "Indicadores de Sequía" = list(
+    "SPEI 1 mes" = "spei_1",
+    "SPEI 3 meses" = "spei_3",
+    "SPEI 6 meses" = "spei_6",
+    "SPEI 12 meses" = "spei_12",
+    "SPEI 24 meses" = "spei_24",
+    "SPI 1 mes" = "spi_1",
+    "SPI 3 meses" = "spi_3",
+    "SPI 6 meses" = "spi_6",
+    "SPI 12 meses" = "spi_12",
+    "SPI 24 meses" = "spi_24"
+    )
+  )
 
 opt_unidad <-  c(
   "Regiones" = "regiones",
