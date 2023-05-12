@@ -27,9 +27,9 @@ page_navbar(
 
         conditionalPanel(
           "input.showpanel",
-          selectInput("macrozona", tags$small("Macrozona"), opt_macrozona, selected = "zona central", multiple = TRUE),
+          selectInput("macrozona", tags$small("Macrozona"), opt_macrozona, multiple = FALSE), # selected = "zona central",
           selectInput("unidad", tags$small("Unidad administrativa"), opt_unidad),
-          selectInput("variable", tags$small("Variable"), opt_variable, selected = "pre"),
+          selectInput("variable", tags$small("Variable"), opt_variable, selected = "pre", selectize = TRUE),
           sliderTextInput("fecha", tags$small("Fecha"), opt_fecha, selected = c(tail(opt_fecha, 12 * 10)[1], tail(opt_fecha, 1))),
 
           conditionalPanel(

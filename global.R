@@ -87,7 +87,7 @@ nombre_key <- list(
 #   as.data.frame() |>
 #   pull(macrozona)
 opt_macrozona <- c(
-  # "Todas",
+  "Todas",
   "Norte Grande",
   "Norte Chico",
   "Zona Central",
@@ -111,15 +111,14 @@ opt_fecha <- tbl(sql_con(), "data_clima_sequia") |>
 #   names()
 
 opt_variable <- list(
-  "Variables Meteorológicas" = list(
+  # "Variables Meteorológicas" = list(
     "Demanda evaporativa de la atmosfera" = "pet",
     "Precipitación" = "pre",
     "Temperatura" ="tas",
     "Temperatura Mínima" ="tasmin",
-    "Temperatura Máxima" ="tasmax"
-    ),
-
-  "Indicadores de Sequía" = list(
+    "Temperatura Máxima" ="tasmax",
+  #   ),
+  # "Indicadores de Sequía" = list(
     "SPEI 1 mes" = "spei_1",
     "SPEI 3 meses" = "spei_3",
     "SPEI 6 meses" = "spei_6",
@@ -130,7 +129,7 @@ opt_variable <- list(
     "SPI 6 meses" = "spi_6",
     "SPI 12 meses" = "spi_12",
     "SPI 24 meses" = "spi_24"
-    )
+    # )
   )
 
 opt_unidad <-  c(

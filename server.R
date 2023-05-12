@@ -24,7 +24,7 @@ function(input, output, session) {
         options = layersControlOptions(collapsed = FALSE)
       ) |>
       htmlwidgets::onRender("function(el, x) { L.control.zoom({ position: 'topright' }).addTo(this) }") |>
-      setView(lng =  -70.64827, lat = -33.45694, zoom = 6) |>
+      setView(lng =  -70.64827, lat = -33.45694, zoom = 4) |>
       leafem::addLogo(
         img = "https://odes-chile.org/img/logo.png",
         src= "remote",
@@ -115,10 +115,17 @@ function(input, output, session) {
     v  <- input$variable
     mc <- input$macrozona
 
-    units <- dunits |>
-      filter(macrozona %in% input$macrozona) |>
-      filter(unit == input$unidad) |>
-      pull(code)
+    if(input$macrozona %in% "todas"){
+      units <- dunits |>
+        # filter(macrozona %in% input$macrozona) |>
+        filter(unit == input$unidad) |>
+        pull(code)
+    } else {
+      units <- dunits |>
+        filter(macrozona %in% input$macrozona) |>
+        filter(unit == input$unidad) |>
+        pull(code)
+    }
 
     data_geo2 <- data_geo |>
       filter(id_unidad %in% units) |>
