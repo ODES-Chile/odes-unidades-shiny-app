@@ -1,8 +1,17 @@
-# input <- list(unidad = "distrito_censal", variable = "tas",  fecha = "2018-03-01")
-# input <- list(macrozona = "zona central", unidad = "regiones", variable = "spei_12",  fecha = c("2010-04-01", "2018-12-01"), map_shape_click = list(id = "08"))
+# input <- list(
+#   macrozona = "zona central", unidad = "regiones", variable = "spei_12",
+#   fecha = c("2010-04-01", "2018-12-01"), map_shape_click = list(id = "08"),
+#   fmin = "2010-04-01", fmax = "2018-12-01"
+#   )
 # source("global.R")
 
 function(input, output, session) {
+
+  # expresion reactiva de fecha para separa minimo y máximo
+  # para luego aplicar throll
+  fecha2 <- reactive(input$fecha)
+  fmin <- debounce(reactive(fecha2()[1]), 500)
+  fmax <- debounce(reactive(fecha2()[2]), 500)
 
   # mapa principal
   output$map <- renderLeaflet({
@@ -56,12 +65,14 @@ function(input, output, session) {
 
   data_coropleta <- reactive({
 
+    fmax <- fmax()
+
     cli::cli_h3("data_coropleta")
     cli::cli_alert_info("unidad {input$unidad}")
-    cli::cli_alert_info("fecha  {input$fecha[[2]]}")
+    cli::cli_alert_info("fecha  {fmax}")
 
     u <- input$unidad
-    f <- ymd(input$fecha)[2] # toma el valor máximo
+    f <- fmax
 
     data_coropleta <- tbl(sql_con(), "data_clima_sequia") |>
       # filter(year(date) == year(f), month(date) == month(f), day(date) == day(f)) |>
@@ -145,8 +156,9 @@ function(input, output, session) {
 
     id <- input$map_shape_click$id
     u  <- input$unidad
-    f1 <- ymd(input$fecha)[1]
-    f2 <- ymd(input$fecha)[2]
+    isolate(input$fecha)
+    f1 <- input$fecha[1]
+    f2 <- input$fecha[2]
 
     vr        <- names(which(input$variable == opt_variable))
     unit_name <- dunits |>
