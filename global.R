@@ -112,7 +112,7 @@ opt_fecha <- tbl(sql_con(), "data_clima_sequia") |>
 
 opt_variable <- list(
   # "Variables Meteorológicas" = list(
-    "Demanda evaporativa de la atmosfera" = "pet",
+    "Demanda evaporativa de la atmósfera" = "pet",
     "Precipitación" = "pre",
     "Temperatura" ="tas",
     "Temperatura Mínima" ="tasmin",
