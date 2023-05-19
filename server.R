@@ -462,6 +462,16 @@ function(input, output, session) {
       map(column, width = 3) |>
       htmltools::tagList()
 
+    report <- tagList(
+      htmltools::tags$h1(un, tags$small(str_glue("({fs[1]} a {fs[2]})"))),
+      tags$br(),
+      fluidRow(value_boxes),
+      tags$br(),
+      hc
+    )
+
+    # saveRDS(report, session$token)
+
     showModal(
       modalDialog(
         title =  htmltools::tagList(un, tags$small(str_glue("({fs[1]} a {fs[2]})"))),
@@ -469,7 +479,8 @@ function(input, output, session) {
         tags$br(),
         hc,
         footer = tagList(
-          # downloadButton("descargar_reporte", "Descargar reporte", class = "btn-primary btn-sm"),
+          downloadButton("printPdf_CA", "Descargar reporte", class = "btn-primary btn-sm"),
+          # actionBttn("printPdf_CA", "Descargar reporte", class = "btn-primary btn-sm"),
           downloadButton("descargar_datos", "Descargar datos", class = "btn-primary btn-sm")
           ),
         size = "xl",
