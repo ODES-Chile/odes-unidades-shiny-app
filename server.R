@@ -13,6 +13,28 @@ function(input, output, session) {
   fmin <- debounce(reactive(fecha2()[1]), 500)
   fmax <- debounce(reactive(fecha2()[2]), 500)
 
+  # observer para mostrar notificaión
+  # A queue of notification IDs
+  ids <- character(0)
+  # A counter
+  n <- 0
+
+  observe({
+    # Save the ID for removal later
+    id <- showNotification(
+      tags$small(
+        shiny::icon("spinner", class = "fa-spin"),
+        " Cargando información..."
+      ),
+      duration = 5,
+      closeButton = FALSE,
+      type = "message"
+      )
+    ids <<- c(ids, id)
+    n <<- n + 1
+  }) |>
+    bindEvent(data_coropleta())
+
   # mapa principal
   output$map <- renderLeaflet({
 
@@ -278,6 +300,10 @@ function(input, output, session) {
                       filter(variable == input$variable) |>
                       str_glue_data("{desc} {ifelse(is.na(unidad), '', str_c('(',unidad, ')'))}")
       )
+
+    if (length(ids) > 0)
+      removeNotification(ids[1])
+    ids <<- ids[-1]
 
   })
 
