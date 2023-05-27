@@ -3,6 +3,8 @@
 #   fecha = c("2010-04-01", "2018-12-01"), map_shape_click = list(id = "08"),
 #   fmin = "2010-04-01", fmax = "2018-12-01"
 #   )
+# fmin <- "2010-04-01"
+# fmax <- "2018-12-01"
 # source("global.R")
 
 function(input, output, session) {
@@ -206,6 +208,7 @@ function(input, output, session) {
   # observer de mapa
   observe({
 
+    fmax      <- fmax()
     data_geo2 <- data_geo2()
 
     cli::cli_h3("observer de mapa")
@@ -253,9 +256,32 @@ function(input, output, session) {
 
     if(str_detect(input$variable, "spei_|spi_")) {
       lb <- ~paste0(nombre_unidad , " ",  round(variable, 3), " (", variable_cat, ")")
+
+      popp <- ~paste0(
+        nombre_unidad , " ",  round(variable, 3), " (", variable_cat, ")",
+        tags$br(),
+        actionButton(
+          "reporte", "Generar reporte", class = "btn-primary", size = 'xs',
+          icon = icon('line-chart'),
+          onclick = "Shiny.onInputChange('reporte', Math.random())"
+        )
+      )
+
+
       fc <- ~pal(`variable_cat`)
     } else {
       lb <-  ~paste0(nombre_unidad , " ",  round(variable, 3))
+
+      popp <- ~paste0(
+        nombre_unidad , " ",  round(variable, 3),
+        tags$br(),
+        actionButton(
+          "reporte", "Generar reporte", class = "btn-primary", size = 'xs',
+          icon = icon('line-chart'),
+          onclick = "Shiny.onInputChange('reporte', Math.random())"
+        )
+      )
+
       fc <- ~pal(`variable`)
     }
 
@@ -271,6 +297,7 @@ function(input, output, session) {
         stroke = NULL,
         fillOpacity = 0.7,
         layerId = ~id_unidad,
+        popup = popp,
         label = lb,
         highlightOptions = highlightOptions(
           color = "white",
@@ -278,6 +305,16 @@ function(input, output, session) {
           fillColor = parametros$color,
           bringToFront = TRUE
           ),
+        popupOptions = popupOptions(
+          # offset = c(-20, -20),
+          style = list(
+            "font-family" = parametros$font_family,
+            "box-shadow" = "2px 2px rgba(0,0,0,0.15)",
+            "font-size" = "15px",
+            "padding" = "15px",
+            "border-color" = "rgba(0,0,0,0.15)"
+          )
+        ),
         labelOptions = labelOptions(
           # offset = c(-20, -20),
           style = list(
@@ -297,9 +334,12 @@ function(input, output, session) {
         labFormat = labelFormat(transform = function(x) sort(x, decreasing = FALSE)),
         layerId   = "colorLegend",
         title     = dparvar |>
-                      filter(variable == input$variable) |>
-                      str_glue_data("{desc} {ifelse(is.na(unidad), '', str_c('(',unidad, ')'))}")
+          filter(variable == input$variable) |>
+          str_glue_data("{desc} {ifelse(is.na(unidad), '', str_c('(',unidad, ')'))}") |>
+          str_c(str_glue("<br/>Mes: {format(ymd(fmax), \"%Y-%m\")}"))
       )
+
+
 
     if (length(ids) > 0)
       removeNotification(ids[1])
@@ -479,8 +519,7 @@ function(input, output, session) {
         tags$br(),
         hc,
         footer = tagList(
-          downloadButton("printPdf_CA", "Descargar reporte", class = "btn-primary btn-sm"),
-          # actionBttn("printPdf_CA", "Descargar reporte", class = "btn-primary btn-sm"),
+          # downloadButton("descargar_png", "Descargar reporte", class = "btn-primary btn-sm"),
           downloadButton("descargar_datos", "Descargar datos", class = "btn-primary btn-sm")
           ),
         size = "xl",
@@ -491,45 +530,57 @@ function(input, output, session) {
 
   })
 
-  # https://shiny.rstudio.com/articles/generating-reports.html
-  output$descargar_reporte <- downloadHandler(
-    filename = "report.html",
-    content = function(file) {
-      tempReport <- file.path(tempdir(), "report.Rmd")
-      file.copy("report.Rmd", tempReport, overwrite = TRUE)
-
-      unit_name <- dunits |>
-        filter(code == input$map_shape_click$id) |>
-        pull(unit_name)
-
-      params <- list(id = input$map_shape_click$id, unit_name = unit_name)
-
-      rmarkdown::render(tempReport, output_file = file,
-                        params = params,
-                        envir = new.env(parent = globalenv())
-      )
-    }
-  )
+  # # https://shiny.rstudio.com/articles/generating-reports.html
+  # output$descargar_reporte <- downloadHandler(
+  #   filename = "report.html",
+  #   content = function(file) {
+  #     tempReport <- file.path(tempdir(), "report.Rmd")
+  #     file.copy("report.Rmd", tempReport, overwrite = TRUE)
+  #
+  #     unit_name <- dunits |>
+  #       filter(code == input$map_shape_click$id) |>
+  #       pull(unit_name)
+  #
+  #     params <- list(id = input$map_shape_click$id, unit_name = unit_name)
+  #
+  #     rmarkdown::render(tempReport, output_file = file,
+  #                       params = params,
+  #                       envir = new.env(parent = globalenv())
+  #     )
+  #   }
+  # )
 
   nombre_descarga_datos <- reactive({
-
     unitname <- dunits |>
       filter(unit == input$unidad, code == input$map_shape_click$id) |>
       pull(unit_name)
-
-    str_glue("{unitname}_{input$fecha[[1]]}-{input$fecha[[2]]}.xlsx")
-
+    str_glue("{unitname}_{input$fecha[[1]]}-{input$fecha[[2]]}")
   })
+
+  output$descargar_png <- downloadHandler(
+    filename = function() {
+      fs::path(nombre_descarga_datos(), ext = "png")
+    },
+    content = function(file) {
+      screenshot(
+        download = FALSE,
+        # id = "shiny-modal-wrapper",
+        filename = "screenshot.png",
+        timer = 1,
+        server_dir = "."
+        )
+      fs::file_move("screenshot.png", file)
+    }
+  )
 
   output$descargar_datos <- downloadHandler(
     filename = function() {
-      nombre_descarga_datos()
+      fs::path(nombre_descarga_datos(), ext = "xlsx")
     },
     content = function(file) {
       tempdata    <- file.path(tempdir(), "datos.xlsx")
       data_unidad <- data_unidad()
       writexl::write_xlsx(data_unidad, file)
-
     }
   )
 

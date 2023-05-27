@@ -10,7 +10,6 @@ page_navbar(
       tags$head(
         # Include our custom CSS
         includeCSS("www/css/styles.css"),
-        includeScript("www/js/gomap.js")
       ),
       # If not using custom CSS, set height of leafletOutput to a number instead of percent
       leafletOutput("map", width="100%", height="100%"),
@@ -36,7 +35,7 @@ page_navbar(
             "input.showchart",
             # "hchart va en 2do contitaion panel",
             highchartOutput("chart", width = "100%", height = "200px"),
-            actionButton("reporte","Generar reporte", icon = icon("file"),  class = "btn-primary btn-sm"),
+            # actionButton("reporte2","Generar reporte", icon = icon("file"),  class = "btn-primary btn-sm"),
             tags$br(),
             tags$br(),
           )
