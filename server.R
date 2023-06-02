@@ -1,10 +1,10 @@
-# input <- list(
-#   macrozona = "zona central", unidad = "regiones", variable = "spei_12",
-#   fecha = c("2010-04-01", "2018-12-01"), map_shape_click = list(id = "08"),
-#   fmin = "2010-04-01", fmax = "2018-12-01"
-#   )
 # fmin <- "2010-04-01"
-# fmax <- "2018-12-01"
+# fmax <- "2014-02-01"
+# input <- list(
+#   macrozona = "todas", unidad = "subsubcuencas", variable = "tas",
+#   fecha = c(fmin, fmax), map_shape_click = list(id = "08"),
+#   fmin = fmin, fmax = fmax
+#   )
 # source("global.R")
 
 function(input, output, session) {
@@ -131,10 +131,11 @@ function(input, output, session) {
       rename(
         nombre_unidad := !!un,
         id_unidad     := !!uk
-      ) |>
+      )
       # filter(!is.na(valor))
-      filter(!sf::st_is_empty(data_geo))
+      # filter(!sf::st_is_empty(data_geo))
 
+    # mapview::mapview(data_geo)
     data_geo
 
   })
@@ -166,6 +167,7 @@ function(input, output, session) {
       filter(id_unidad %in% units) |>
       rename(variable := !!v)
 
+    # mapview::mapview(data_geo2)
     data_geo2
 
   })
@@ -285,6 +287,12 @@ function(input, output, session) {
 
       fc <- ~pal(`variable`)
     }
+
+    data_geo2
+
+    # data_geo2 |> select(id_unidad) |> as.data.frame() |> count(id_unidad, sort = TRUE) |> as_tibble()
+
+    # data_geo2 |> filter(id_unidad == 10903) |> sample_frac(1) |> mapview::mapview()
 
     leafletProxy("map") |>
       # leaflet() |> addTiles() |>
