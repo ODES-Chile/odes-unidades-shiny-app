@@ -4,7 +4,7 @@ page_navbar(
   id = "nav",
   theme = theme_odes,
   # mapa --------------------------------------------------------------------
-  bslib::nav(
+  bslib::nav_panel(
     NULL,
     div(class="outer",
       tags$head(
@@ -36,8 +36,8 @@ page_navbar(
             # "hchart va en 2do contitaion panel",
             highchartOutput("chart", width = "100%", height = "200px"),
             # actionButton("reporte2","Generar reporte", icon = icon("file"),  class = "btn-primary btn-sm"),
-            tags$br(),
-            tags$br(),
+            # tags$br(),
+            # tags$br(),
           )
 
         ),

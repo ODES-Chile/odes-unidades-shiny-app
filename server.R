@@ -259,24 +259,25 @@ function(input, output, session) {
 
       popp <- ~paste0(
         nombre_unidad , " ",  round(variable, 3), " (", variable_cat, ")",
+        str_glue("<br/>Fecha: {format(ymd(fmax), \"%Y-%m\")}"),
         tags$br(),
         actionButton(
-          "reporte", "Generar reporte", class = "btn-primary", size = 'xs',
+          "reporte", "Generar reporte", class = "btn-primary btn-sm", size = 'xs',
           icon = icon('line-chart'),
           onclick = "Shiny.onInputChange('reporte', Math.random())"
         )
       )
-
-
       fc <- ~pal(`variable_cat`)
+
     } else {
       lb <-  ~paste0(nombre_unidad , " ",  round(variable, 3))
 
       popp <- ~paste0(
         nombre_unidad , " ",  round(variable, 3),
+        str_glue("<br/>Fecha: {format(ymd(fmax), \"%Y-%m\")}"),
         tags$br(),
         actionButton(
-          "reporte", "Generar reporte", class = "btn-primary", size = 'xs',
+          "reporte", "Generar reporte", class = "btn-primary btn-sm", size = 'xs',
           icon = icon('line-chart'),
           onclick = "Shiny.onInputChange('reporte', Math.random())"
         )
