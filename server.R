@@ -215,9 +215,11 @@ function(input, output, session) {
 
     cli::cli_h3("observer de mapa")
 
-    cols <- dparvar |>
+    data_variable <- dparvar |>
       filter(variable == input$variable) |>
-      pull(cols) |>
+      as.list()
+
+    cols <- data_variable$cols |>
       str_split(", ", simplify = TRUE) |>
       as.vector()
 
@@ -272,10 +274,11 @@ function(input, output, session) {
       fc <- ~pal(`variable_cat`)
 
     } else {
+      # numerica
       lb <-  ~paste0(nombre_unidad , " ",  round(variable, 3))
 
       popp <- ~paste0(
-        nombre_unidad , " ",  round(variable, 3),
+        nombre_unidad , " ",  round(variable, 3), " ", data_variable$unidad, "",
         str_glue("<br/>Fecha: {format(ymd(fmax), \"%Y-%m\")}"),
         tags$br(),
         actionButton(
@@ -347,8 +350,6 @@ function(input, output, session) {
           str_glue_data("{desc} {ifelse(is.na(unidad), '', str_c('(',unidad, ')'))}") |>
           str_c(str_glue("<br/>Mes: {format(ymd(fmax), \"%Y-%m\")}"))
       )
-
-
 
     if (length(ids) > 0)
       removeNotification(ids[1])
