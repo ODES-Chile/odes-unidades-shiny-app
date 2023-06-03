@@ -130,12 +130,12 @@ opt_variable <- list(
     "SPI 6 meses" = "spi_6",
     "SPI 12 meses" = "spi_12",
     "SPI 24 meses" = "spi_24",
-    "SPEI-1 era "SPEI1_era",
-    "SPEI-3 era "SPEI3_era",
-    "SPEI-6 era "SPEI6_era",
-    "SPEI-12 era "SPEI12_era",
-    "SPEI-24 era "SPEI24_era",
-    "SPEI-36 era "SPEI1_era"  
+    "SPEI-1 era" = "SPEI-1_era",
+    "SPEI-3 era" = "SPEI-3_era",
+    "SPEI-6 era" = "SPEI-6_era",
+    "SPEI-12 era" = "SPEI-12_era",
+    "SPEI-24 era" = "SPEI-24_era",
+    "SPEI-36 era" = "SPEI-36_era"
     # )
   )
 
