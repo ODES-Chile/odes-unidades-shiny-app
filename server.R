@@ -11,9 +11,15 @@ function(input, output, session) {
 
   # expresion reactiva de fecha para separa minimo y máximo
   # para luego aplicar throll
-  fecha2 <- reactive(input$fecha)
-  fmin <- debounce(reactive(fecha2()[1]), 2000)
-  fmax <- debounce(reactive(fecha2()[2]), 2000)
+  # fecha2 <- reactive(input$fecha)
+
+  fecha2min <- reactive(input$fecha[1])
+  fmin <- debounce(reactive(fecha2min()), 2000)
+
+  fecha2max <- reactive(input$fecha[2])
+  fmax <- debounce(reactive(fecha2max()), 2000)
+
+  fmax2 <- reactiveVal(0)
 
   # observer para mostrar notificaión
   # A queue of notification IDs
@@ -212,6 +218,9 @@ function(input, output, session) {
 
     fmax      <- fmax()
     data_geo2 <- data_geo2()
+
+    if(fmax == fmax2()) return(TRUE)
+    fmax2(fmax)
 
     cli::cli_h3("observer de mapa")
 
