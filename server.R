@@ -263,10 +263,10 @@ function(input, output, session) {
 
       popp <- ~paste0(
         nombre_unidad , " ",  round(variable, 3), " (", variable_cat, ")",
-        str_glue("<br/>Fecha: {format(ymd(fmax), \"%Y-%m\")}"),
+        str_glue("<br/>{fmt_fecha(fmax)}"),
         tags$br(),
         actionButton(
-          "reporte", "Generar reporte", class = "btn-primary btn-sm", size = 'xs',
+          "reporte", "Reporte Sequía", class = "btn-primary btn-sm", size = 'xs',
           icon = icon('line-chart'),
           onclick = "Shiny.onInputChange('reporte', Math.random())"
         )
@@ -279,7 +279,7 @@ function(input, output, session) {
 
       popp <- ~paste0(
         nombre_unidad , " ",  round(variable, 3), " ", data_variable$unidad, "",
-        str_glue("<br/>Fecha: {format(ymd(fmax), \"%Y-%m\")}"),
+        str_glue("<br/>{fmt_fecha(fmax)}"),
         tags$br(),
         actionButton(
           "reporte", "Generar reporte", class = "btn-primary btn-sm", size = 'xs',
@@ -348,7 +348,7 @@ function(input, output, session) {
         title     = dparvar |>
           filter(variable == input$variable) |>
           str_glue_data("{desc} {ifelse(is.na(unidad), '', str_c('(',unidad, ')'))}") |>
-          str_c(str_glue("<br/>Mes: {format(ymd(fmax), \"%Y-%m\")}"))
+          str_c(str_glue("<br/>{fmt_fecha(fmax)}"))
       )
 
     if (length(ids) > 0)
