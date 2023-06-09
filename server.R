@@ -219,8 +219,8 @@ function(input, output, session) {
     fmax      <- fmax()
     data_geo2 <- data_geo2()
 
-    if(fmax == fmax2()) return(TRUE)
-    fmax2(fmax)
+    # if(fmax == fmax2()) return(TRUE)
+    # fmax2(fmax)
 
     cli::cli_h3("observer de mapa")
 
