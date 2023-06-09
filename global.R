@@ -52,6 +52,12 @@ hc_void <- highchart() |>
   hc_yAxis(endOnTick = FALSE, startOnTick = FALSE) |>
   hc_credits(enabled = TRUE, text = "", href = "")
 
+fmt_fecha <- function(f = "2010-04-01"){
+  if(is.character(f)) f <- lubridate::ymd(f)
+
+  format(f, "%B, %Y")
+
+}
 
 # data --------------------------------------------------------------------
 # data <- readRDS("data/01_dummy_data.rds")
@@ -129,7 +135,15 @@ opt_variable <- list(
     "SPI 3 meses" = "spi_3",
     "SPI 6 meses" = "spi_6",
     "SPI 12 meses" = "spi_12",
-    "SPI 24 meses" = "spi_24"
+    "SPI 24 meses" = "spi_24",
+
+    "SPEI 1 ERA" = "SPEI-1_era",
+    "SPEI 3 ERA" = "SPEI-3_era",
+    "SPEI 6 ERA" = "SPEI-6_era",
+    "SPEI 12 ERA" = "SPEI-12_era",
+    "SPEI 24 ERA" = "SPEI-24_era",
+    "SPEI 36 ERA" = "SPEI-36_era"
+
     # )
   )
 
