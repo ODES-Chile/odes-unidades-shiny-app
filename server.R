@@ -47,12 +47,12 @@ function(input, output, session) {
         )
       ) |>
 
-      addProviderTiles(providers$CartoDB.Positron,  group = "CartoDB") |>
-      addProviderTiles(providers$Esri.WorldImagery, group = "ESRI WI") |>
-      addProviderTiles(providers$Esri.WorldTopoMap, group = "ESRI WTM") |>
+      addProviderTiles(providers$CartoDB.Positron,  group = "Administrativo") |>
+      addProviderTiles(providers$Esri.WorldImagery, group = "Satélite") |>
+      addProviderTiles(providers$Esri.WorldTopoMap, group = "Topográfico") |>
 
       addLayersControl(
-        baseGroups = c("CartoDB", "ESRI WI", "ESRI WTM"),
+        baseGroups = c("Administrativo", "Satélite", "Topográfico"),
         position   = "bottomright",
         options = layersControlOptions(collapsed = FALSE)
       ) |>
