@@ -214,3 +214,28 @@ dunits <- dunits |>
 saveRDS(dunits, "data/01_dunits.rds")
 
 
+# fix duplicate id in vectorial min ---------------------------------------
+fs::dir_ls("data/vectorial/min") |>
+  map(function(fn = "data/vectorial/min/subcuencas_sim.gpkg"){
+
+    cli::cli_progress_step(fn)
+
+    d <- sf::read_sf(fn)
+
+    u <- basename(fn) |>
+      str_remove("_sim.gpkg")
+
+    d2 <- d |>
+      mutate(area = st_area(geom)) |>
+      group_by(.data[[columna_id[[u]]]]) |>
+      filter(area == max(area)) |>
+      ungroup()
+
+    cli::cli_inform("{nrow(d)} a {nrow(d2)}: {nrow(d) - nrow(d2)}")
+
+    sf::write_sf(d2, fn)
+
+  })
+
+
+
