@@ -2,6 +2,7 @@
 page_navbar(
   title  = tags$span("ODES Unidades", class = "title"),
   id = "nav",
+  lang = "es",
   theme = theme_odes,
   # mapa --------------------------------------------------------------------
   bslib::nav_panel(
