@@ -1,7 +1,7 @@
 # fmin <- "2010-04-01"
 # fmax <- "2014-02-01"
 # input <- list(
-#   macrozona = "todas", unidad = "subsubcuencas", variable = "tas",
+#   macrozona = "todas", unidad = "regiones", variable = "tas",
 #   fecha = c(fmin, fmax), map_shape_click = list(id = "08"),
 #   fmin = fmin, fmax = fmax
 #   )
@@ -291,7 +291,7 @@ function(input, output, session) {
         str_glue("<br/>{fmt_fecha(fmax)}"),
         tags$br(),
         actionButton(
-          "reporte", "Generar reporte", class = "btn-primary btn-sm", size = 'xs',
+          "reporte", "Reporte Sequía", class = "btn-primary btn-sm", size = 'xs',
           icon = icon('line-chart'),
           onclick = "Shiny.onInputChange('reporte', Math.random())"
         )
@@ -429,7 +429,7 @@ function(input, output, session) {
     data_unidad[["variable"]] <- data_unidad[[input$variable]]
 
     data_unidad <- data_unidad |>
-      select(date, code, unique(c("spei_12", "spei_24", "tas", "pre", "variable")))
+      select(date, code, unique(c("spei_12", "eddi_12", "sma_100cm", "zndvi", "variable")))
 
     fs <- data_unidad |>
       summarise(min(date), max(date)) |>
@@ -440,6 +440,7 @@ function(input, output, session) {
                "Mayo", "Junio", "Julio", "Agosto",
                "Septiembre", "Octubre", "Noviembre", "Diciembre")
 
+    # datos para la variable seleccionada
     datos <- data_unidad |>
       select(date, variable) |>
       mutate(group = year(date)) |>
@@ -509,26 +510,46 @@ function(input, output, session) {
       ) |>
       mutate(across(where(is.numeric), round, 2))
 
+    data_unidad_g <- data_unidad_g |>
+      left_join(
+        dparvar |> select(name = variable, desc),
+        by = "name"
+      )
+
     value_boxes <- data_unidad_g |>
-      pmap(function(name, last, maxi, mini, data, hc){
+      pmap(function(name, last, maxi, mini, data, hc, desc){
         value_box(
-          str_replace_all(str_to_upper(name), "_", " "),
+          str_replace_all((desc), "_", " "),
           h2(HTML(last)),
           span(bsicons::bs_icon("arrow-up"), maxi, "/", bsicons::bs_icon("arrow-down"), mini),
-          hc
+          # hc
         )
       }) |>
       map(column, width = 3) |>
       htmltools::tagList()
 
-    report <- tagList(
-      htmltools::tags$h1(un, tags$small(str_glue("({fs[1]} a {fs[2]})"))),
-      tags$br(),
-      fluidRow(value_boxes),
-      tags$br(),
-      hc
-    )
+    hc_sequia <- data_unidad |>
+      select(-code, -variable) |>
+      pivot_longer(cols = -date) |>
+      left_join(
+        dparvar |> select(name = variable, desc),
+        by = "name"
+      ) |>
+      select(-name) |>
+      hchart("line", hcaes(date, value, group = desc)) |>
+      hc_tooltip(table = TRUE, sort = TRUE, valueDecimals = 2)
 
+    hc_sequia
+
+    # report <- tagList(
+    #   htmltools::tags$h1(un, tags$small(str_glue("({fs[1]} a {fs[2]})"))),
+    #   tags$br(),
+    #   fluidRow(value_boxes),
+    #   tags$br(),
+    #   # hc
+    #   hc_sequia
+    # )
+    #
     # saveRDS(report, session$token)
 
     showModal(
@@ -536,7 +557,8 @@ function(input, output, session) {
         title =  htmltools::tagList(un, tags$small(str_glue("({fs[1]} a {fs[2]})"))),
         fluidRow(value_boxes),
         tags$br(),
-        hc,
+        # hc,
+        hc_sequia,
         footer = tagList(
           # downloadButton("descargar_png", "Descargar reporte", class = "btn-primary btn-sm"),
           downloadButton("descargar_datos", "Descargar datos", class = "btn-primary btn-sm")
@@ -599,6 +621,8 @@ function(input, output, session) {
     content = function(file) {
       tempdata    <- file.path(tempdir(), "datos.xlsx")
       data_unidad <- data_unidad()
+      data_unidad <- data_unidad |>
+        select(fecha = date, eddi_12, spei_12, sma_100cm,	zndvi)
       writexl::write_xlsx(data_unidad, file)
     }
   )
