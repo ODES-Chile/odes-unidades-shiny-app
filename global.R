@@ -107,7 +107,7 @@ opt_fecha <- tbl(sql_con(), "data_clima_sequia") |>
   distinct(date) |>
   collect() |>
   arrange(date) |>
-  filter(date <= ymd(20190601)) |>
+  # filter(date <= ymd(20190601)) |>
   # filter(year(date) >= 2011) |> # cuidado con el data_variable que filtra anios
   pull()
 
@@ -116,33 +116,37 @@ opt_fecha <- tbl(sql_con(), "data_clima_sequia") |>
 #   # select(-tipo, -codigo, -fecha) |>
 #   names()
 
-opt_variable <- list(
-  # "Variables Meteorológicas" = list(
-    # "Demanda evaporativa de la atmósfera" = "pet",
-  "Evapotranspiración" = "pet",
-    "Precipitación" = "pre",
-    "Temperatura" ="tas",
-    "Temperatura Mínima" ="tasmin",
-    "Temperatura Máxima" ="tasmax",
-  #   ),
-  # "Indicadores de Sequía" = list(
-    "SPEI 1 mes" = "spei_1",
-    "SPEI 3 meses" = "spei_3",
-    "SPEI 6 meses" = "spei_6",
-    "SPEI 12 meses" = "spei_12",
-    "SPEI 24 meses" = "spei_24",
-    "SPI 1 mes" = "spi_1",
-    "SPI 3 meses" = "spi_3",
-    "SPI 6 meses" = "spi_6",
-    "SPI 12 meses" = "spi_12",
-    "SPI 24 meses" = "spi_24",
-    "SPEI-1 era" = "SPEI-1_era",
-    "SPEI-3 era" = "SPEI-3_era",
-    "SPEI-6 era" = "SPEI-6_era",
-    "SPEI-12 era" = "SPEI-12_era",
-    "SPEI-24 era" = "SPEI-24_era",
-    "SPEI-36 era" = "SPEI-36_era"
-  )
+opt_variable <- dparvar |>
+  select(desc, variable) |>
+  deframe()
+
+# opt_variable <- list(
+#   # "Variables Meteorológicas" = list(
+#     # "Demanda evaporativa de la atmósfera" = "pet",
+#   "Evapotranspiración" = "pet",
+#     "Precipitación" = "pre",
+#     "Temperatura" ="tas",
+#     "Temperatura Mínima" ="tasmin",
+#     "Temperatura Máxima" ="tasmax",
+#   #   ),
+#   # "Indicadores de Sequía" = list(
+#     "SPEI 1 mes" = "spei_1",
+#     "SPEI 3 meses" = "spei_3",
+#     "SPEI 6 meses" = "spei_6",
+#     "SPEI 12 meses" = "spei_12",
+#     "SPEI 24 meses" = "spei_24",
+#     "SPI 1 mes" = "spi_1",
+#     "SPI 3 meses" = "spi_3",
+#     "SPI 6 meses" = "spi_6",
+#     "SPI 12 meses" = "spi_12",
+#     "SPI 24 meses" = "spi_24",
+#     "SPEI-1 era" = "SPEI-1_era",
+#     "SPEI-3 era" = "SPEI-3_era",
+#     "SPEI-6 era" = "SPEI-6_era",
+#     "SPEI-12 era" = "SPEI-12_era",
+#     "SPEI-24 era" = "SPEI-24_era",
+#     "SPEI-36 era" = "SPEI-36_era"
+#   )
 
 opt_unidad <-  c(
   "Regiones" = "regiones",
