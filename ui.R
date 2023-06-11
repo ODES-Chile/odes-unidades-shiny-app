@@ -5,7 +5,7 @@ page_navbar(
   lang = "es",
   theme = theme_odes,
   # mapa --------------------------------------------------------------------
-  bslib::nav_panel(
+  bslib::nav_content(
     NULL,
     div(class="outer",
       tags$head(
