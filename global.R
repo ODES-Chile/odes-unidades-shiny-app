@@ -21,6 +21,9 @@ loadNamespace("dbplyr")
 # helpers
 library(cli)
 
+Sys.setlocale("LC_TIME", "es_ES")
+# Sys.setlocale("LC_TIME", "en_EN")
+
 cli::cli_h1("Start global.R")
 
 

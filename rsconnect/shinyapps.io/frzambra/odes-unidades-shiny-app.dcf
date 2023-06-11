@@ -5,9 +5,9 @@ account: frzambra
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 9059538
-bundleId: 7326754
+bundleId: 7330138
 url: https://frzambra.shinyapps.io/odes-unidades-shiny-app/
-when: 1686351319.7452
-lastSyncTime: 1686351319.74522
+when: 1686459163.56268
+lastSyncTime: 1686459163.5627
 asMultiple: FALSE
 asStatic: FALSE
