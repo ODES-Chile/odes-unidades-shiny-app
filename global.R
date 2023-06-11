@@ -50,6 +50,8 @@ onStop(function() {
 
 
 
+
+
 # options -----------------------------------------------------------------
 parametros <- list(
   color = "#236478",
@@ -64,13 +66,24 @@ theme_odes <-  bs_theme(
   base_font = font_google(parametros$font_family)
 )
 
+options(
+  highcharter.theme = hc_theme_smpl(
+    chart = list(
+      style = list(
+        fontFamily = parametros$font_family
+      )
+    )
+  )
+)
 
 # helpers -----------------------------------------------------------------
 hc_void <- highchart() |>
   hc_add_series(data = NULL, id = "data", showInLegend = FALSE) |>
   hc_xAxis(type = "datetime") |>
   hc_yAxis(endOnTick = FALSE, startOnTick = FALSE) |>
-  hc_credits(enabled = TRUE, text = "", href = "")
+  hc_chart(zoomType = "x") |>
+  hc_credits(enabled = TRUE, text = "", href = "") |>
+  hc_yAxis(endOnTick = FALSE, startOnTick = FALSE)
 
 fmt_fecha <- function(f = "2010-04-01"){
   if(is.character(f)) f <- lubridate::ymd(f)
