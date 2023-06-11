@@ -16,9 +16,10 @@ genePal <- function(vals,rev = TRUE){
   labels <-  c("Sequía excepcional", "Sequía extrema", "Sequía severa", "Sequía moderada", "Anormalmente seco",'Normal',
              "Anormalmente humedo",'Moderadamente humedo','Severamente humedo','Extramademente humedo', 'Excepcionalmente humedo')
 
-  vals_map <- quantile(vals,perc,na.rm = TRUE)
-  vals_cut <- cut(d2$eddi_6,vals_map,include.lowest = TRUE)
-  levels(vals_cut) <- if(rev) rev(labels) else labels
+  vals_map <- quantile(vals,perc,na.rm = TRUE) |> unique()
+  vals_cut <- cut(vals,vals_map,include.lowest = TRUE)
+  n <- levels(vals_cut) |> length()
+  levels(vals_cut) <- if(rev) rev(labels[1:n]) else labels[1:n]
 
   pal <- colorFactor(
     palette = if (rev) rev(palette) else palette,
@@ -26,7 +27,7 @@ genePal <- function(vals,rev = TRUE){
   return(list(pal,vals_cut))
 }
 
-v <- genePal(d2$eddi_6,rev = TRUE)
+v <- genePal(d2$eddi_24,rev = TRUE)
 pal <- v[[1]]
 
 leaflet() |>
