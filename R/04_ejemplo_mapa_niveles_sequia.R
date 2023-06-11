@@ -5,7 +5,7 @@ data_clima_sequia <- tbl(pool, "data_clima_sequia")
 data_geo <- sf::read_sf(str_glue("data/vectorial/min/comunas_sim.gpkg"))
 
 d <- data_clima_sequia |>
-  filter(unit == 'comunas' & date == "2023-05-01") |>
+  filter(unit == 'comunas' & date == "2023-03-01") |>
   collect()
 
 d2 <- left_join(data_geo,d ,by = c('cut_com' = 'code'))
@@ -27,7 +27,7 @@ genePal <- function(vals,rev = TRUE){
   return(list(pal,vals_cut))
 }
 
-v <- genePal(d2$spei_24,rev = FALSE)
+v <- genePal(d2$spi_12,rev = FALSE)
 pal <- v[[1]]
 
 leaflet() |>
