@@ -13,6 +13,10 @@ library(lubridate)
 library(RPostgres)
 library(pool)
 loadNamespace("dbplyr")
+# Note: the loadNamespace("dbplyr") line is there to help the rsconnect package
+# when deploying the application to shinyapps.io or Posit Connect. Without that
+# line, rsconnect will not detect that the dbplyr package is needed, and the
+# application will not work properly.
 
 # helpers
 library(cli)
