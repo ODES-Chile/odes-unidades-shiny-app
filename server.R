@@ -6,6 +6,7 @@
 #   fmin = fmin, fmax = fmax
 #   )
 # source("global.R")
+# data_clima_sequia <- tbl(pool, "data_clima_sequia")
 
 function(input, output, session) {
 
@@ -271,7 +272,7 @@ function(input, output, session) {
 
       popp <- ~paste0(
         nombre_unidad , " ",  round(variable, 3), " (", variable_cat, ")",
-        str_glue("<br/>{fmt_fecha(fmax)}"),
+        str_glue("<br/>{fmt_fecha(fmax)}<br/>"),
         tags$br(),
         actionButton(
           "reporte", "Reporte Sequía", class = "btn-primary btn-sm", size = 'xs',
@@ -287,7 +288,7 @@ function(input, output, session) {
 
       popp <- ~paste0(
         nombre_unidad , " ",  round(variable, 3), " ", data_variable$unidad, "",
-        str_glue("<br/>{fmt_fecha(fmax)}"),
+        str_glue("<br/>{fmt_fecha(fmax)}<br/>"),
         tags$br(),
         actionButton(
           "reporte", "Reporte Sequía", class = "btn-primary btn-sm", size = 'xs',
@@ -325,16 +326,6 @@ function(input, output, session) {
           fillColor = parametros$color,
           bringToFront = TRUE
           ),
-        popupOptions = popupOptions(
-          # offset = c(-20, -20),
-          style = list(
-            "font-family" = parametros$font_family,
-            "box-shadow" = "2px 2px rgba(0,0,0,0.15)",
-            "font-size" = "15px",
-            "padding" = "15px",
-            "border-color" = "rgba(0,0,0,0.15)"
-          )
-        ),
         labelOptions = labelOptions(
           # offset = c(-20, -20),
           style = list(
@@ -518,14 +509,15 @@ function(input, output, session) {
     value_boxes <- data_unidad_g |>
       pmap(function(name, last, maxi, mini, data, hc, desc){
         value_box(
-          str_replace_all((desc), "_", " "),
-          h2(HTML(last)),
+          title = str_replace_all(str_to_upper(name), "_", " "),
+          value = h2(HTML(last)),
           span(bsicons::bs_icon("arrow-up"), maxi, "/", bsicons::bs_icon("arrow-down"), mini),
+          # tags$small(desc)
           # hc
         )
       }) |>
       map(column, width = 3) |>
-      htmltools::tagList()
+      htmltools::tagList() # layout_column_wrap(width = 1/4, fillable = TRUE)
 
     hc_sequia <- data_unidad |>
       select(-code, -variable) |>
@@ -535,26 +527,27 @@ function(input, output, session) {
         by = "name"
       ) |>
       select(-name) |>
-      hchart("line", hcaes(date, value, group = desc)) |>
-      hc_tooltip(table = TRUE, sort = TRUE, valueDecimals = 2)
+      hchart(
+        "line",
+        hcaes(date, value, group = desc),
+        # yAxis = 1:4 - 1
+        ) |>
+      # hc_yAxis_multiples(create_axis(naxis = 4, heights = c(1)))
+      hc_tooltip(table = TRUE, sort = TRUE, valueDecimals = 2) |>
+      hc_chart(zoomType = "x") |>
+      hc_navigator(enabled = TRUE) |>
+      hc_size(height = 400) |>
+      hc_yAxis(endOnTick = FALSE, startOnTick = FALSE, title = list(text = ""))
 
     hc_sequia
 
-    # report <- tagList(
-    #   htmltools::tags$h1(un, tags$small(str_glue("({fs[1]} a {fs[2]})"))),
-    #   tags$br(),
-    #   fluidRow(value_boxes),
-    #   tags$br(),
-    #   # hc
-    #   hc_sequia
-    # )
-    #
-    # saveRDS(report, session$token)
-
     showModal(
       modalDialog(
-        title =  htmltools::tagList(un, tags$small(str_glue("({fs[1]} a {fs[2]})"))),
+        title =  htmltools::tagList(un, tags$small(str_glue("({fmt_fecha(fs[1])} - {fmt_fecha(fs[2])})"))),
         fluidRow(value_boxes),
+        # layout_column_wrap(value_boxes, width = 1/4, fillable = TRUE),
+        # layout_columns(value_boxes, col_widths = c(3, 3, 3, 3)),
+
         tags$br(),
         # hc,
         hc_sequia,

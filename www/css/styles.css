@@ -66,3 +66,24 @@ h1, h2, h3, h4 { font-weight: 400; }
   background-color: white !important;
 }
 */
+
+.leaflet-popup-content-wrapper {
+  /* background: #DB0925; */
+  border-radius: 3px;
+  font-family: 'Raleway';
+  font-size: 15px;
+  }
+/*
+.leaflet-popup-content-wrapper a {
+  color:rgba(255,255,255,0.5);
+  }
+leaflet-popup-tip-container {
+  width:30px;
+  height:15px;
+  }
+.leaflet-popup-tip {
+  border-left:15px solid transparent;
+  border-right:15px solid transparent;
+  border-top:15px solid #2c3e50;
+  }
+*/
