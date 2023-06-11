@@ -12,6 +12,7 @@ library(tidyverse)
 library(lubridate)
 library(RPostgres)
 library(pool)
+loadNamespace("dbplyr")
 
 # helpers
 library(cli)
@@ -29,6 +30,21 @@ sql_con <- function() {
     password = Sys.getenv("SHINY_PSQL_PWD")
   )
 }
+
+pool <- dbPool(
+  drv = RPostgres::Postgres(),
+  dbname = "shiny",
+  host = Sys.getenv("HOST"),
+  user = "shiny",
+  password = Sys.getenv("SHINY_PSQL_PWD")
+)
+
+onStop(function() {
+  poolClose(pool)
+})
+
+
+
 
 # options -----------------------------------------------------------------
 parametros <- list(

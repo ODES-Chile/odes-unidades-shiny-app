@@ -9,6 +9,8 @@
 
 function(input, output, session) {
 
+  data_clima_sequia <- tbl(pool, "data_clima_sequia")
+
   # expresion reactiva de fecha para separa minimo y máximo
   # para luego aplicar throll
   # fecha2 <- reactive(input$fecha)
@@ -104,7 +106,7 @@ function(input, output, session) {
     u <- input$unidad
     f <- fmax
 
-    data_coropleta <- tbl(sql_con(), "data_clima_sequia") |>
+    data_coropleta <- data_clima_sequia |>
       # filter(year(date) == year(f), month(date) == month(f), day(date) == day(f)) |>
       filter(date == f) |>
       filter(unit == u) |>
@@ -197,7 +199,7 @@ function(input, output, session) {
       filter(code == input$map_shape_click$id) |>
       pull(unit_name)
 
-    data_unidad <- tbl(sql_con(), "data_clima_sequia") |>
+    data_unidad <- data_clima_sequia |>
       filter(code == id, unit == u) |>
       filter(f1 <= date) |>
       filter(date <= f2) |>
