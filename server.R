@@ -14,13 +14,10 @@ function(input, output, session) {
   # expresion reactiva de fecha para separa minimo y máximo
   # para luego aplicar throll
   # fecha2 <- reactive(input$fecha)
-
   fecha2min <- reactive(input$fecha[1])
   fmin <- debounce(reactive(fecha2min()), 2000)
-
   fecha2max <- reactive(input$fecha[2])
   fmax <- debounce(reactive(fecha2max()), 2000)
-
   fmax2 <- reactiveVal(0)
 
   # observer para mostrar notificaión
