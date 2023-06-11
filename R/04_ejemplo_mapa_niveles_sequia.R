@@ -22,12 +22,12 @@ genePal <- function(vals,rev = TRUE){
   levels(vals_cut) <- if(rev) rev(labels[1:n]) else labels[1:n]
 
   pal <- colorFactor(
-    palette = if (rev) rev(palette) else palette,
+    palette = if (rev) rev(palette[1:n]) else palette[1:n],
     domain = vals_cut)
   return(list(pal,vals_cut))
 }
 
-v <- genePal(d2$eddi_24,rev = TRUE)
+v <- genePal(d2$spei_24,rev = FALSE)
 pal <- v[[1]]
 
 leaflet() |>
