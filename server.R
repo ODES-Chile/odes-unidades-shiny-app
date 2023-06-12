@@ -543,7 +543,7 @@ function(input, output, session) {
 
     showModal(
       modalDialog(
-        title =  htmltools::tagList(un, tags$small(str_glue("({fmt_fecha(fs[1])} - {fmt_fecha(fs[2])})"))),
+        title =  htmltools::tagList(un, tags$br(), tags$small(str_glue("De {fmt_fecha(fs[1])} a {fmt_fecha(fs[2])}"))),
         fluidRow(value_boxes),
         # layout_column_wrap(value_boxes, width = 1/4, fillable = TRUE),
         # layout_columns(value_boxes, col_widths = c(3, 3, 3, 3)),
