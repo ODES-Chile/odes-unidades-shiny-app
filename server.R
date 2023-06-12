@@ -387,7 +387,7 @@ function(input, output, session) {
     datos <-  data_unidad |>
       rename(variable := !!v) |>
       select(date, variable) |>
-      filter(complete.cases(data_unidad)) |>
+      # filter(complete.cases(data_unidad)) |>
       select(x = date, y = variable) |>
       mutate(x = datetime_to_timestamp(x), y = round(y, 2))
 
