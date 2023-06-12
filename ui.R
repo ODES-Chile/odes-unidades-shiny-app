@@ -1,6 +1,10 @@
 # navbarPage(
 page_navbar(
-  title  = tags$span("ODES Unidades", class = "title"),
+  title  = tags$span(
+    class = "title",
+    tags$img(src = "horizontal_SB_blanco.png", height = "30px", style = "margin-top: -5px"),
+    "Unidades"
+    ),
   id = "nav",
   lang = "es",
   theme = theme_odes,
