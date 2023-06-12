@@ -21,7 +21,10 @@ loadNamespace("dbplyr")
 # helpers
 library(cli)
 
+Sys.setenv("LANGUAGE" = "es")
 Sys.setlocale("LC_TIME", "es_ES")
+Sys.setlocale("LC_TIME", "es_ES.UTF-8")  # Linux, macOS, other Unix-alikes
+
 # Sys.setlocale("LC_TIME", "en_EN")
 
 cli::cli_h1("Start global.R")
@@ -89,9 +92,35 @@ hc_void <- highchart() |>
   hc_yAxis(endOnTick = FALSE, startOnTick = FALSE)
 
 fmt_fecha <- function(f = "2010-04-01"){
+
+  # x <- (ymd(20000101) + months(0:11)) |>
+  #   month(label = TRUE, abbr = FALSE, locale = "en") |>
+  #   as.character() |>
+  #   str_to_lower()
+  # y <- (ymd(20000101) + months(0:11)) |>
+  #   month(label = TRUE, abbr = FALSE, locale = "es") |>
+  #   as.character() |>
+  #   str_to_lower()
+
   if(is.character(f)) f <- lubridate::ymd(f)
 
-  format(f, "%B, %Y")
+  x <- c("january", "february", "march", "april", "may", "june", "july",
+         "august", "september", "october", "november", "december")
+
+  y <- c("enero", "febrero", "marzo", "abril", "mayo", "junio", "julio",
+         "agosto", "septiembre", "octubre", "noviembre", "diciembre")
+
+  fout <- f |>
+    format("%B, %Y") |>
+    str_to_lower()
+
+  id <- which(str_to_lower(format(f, "%B")) == x)
+
+  if(length(id) == 0) return(fout)
+
+  fout <- str_replace(fout, x[id], y[id])
+
+  fout
 
 }
 
