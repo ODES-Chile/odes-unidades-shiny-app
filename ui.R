@@ -4,12 +4,12 @@ page_navbar(
     class = "title",
     tags$img(src = "horizontal_SB_blanco.png", height = "30px", style = "margin-top: -5px"),
     "Unidades"
-    ),
+  ),
   id = "nav",
   lang = "es",
   theme = theme_odes,
   # mapa --------------------------------------------------------------------
-  bslib::nav_content(
+  bslib::nav_panel(
     NULL,
     div(class="outer",
       tags$head(
