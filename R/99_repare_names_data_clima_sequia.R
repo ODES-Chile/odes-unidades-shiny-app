@@ -1,4 +1,3 @@
-
 con <-  DBI::dbConnect(
   drv = RPostgres::Postgres(),
   dbname = "shiny",
@@ -8,6 +7,7 @@ con <-  DBI::dbConnect(
 )
 
 data <- tbl(con, "data_clima_sequia")
+
 glimpse(data)
 
 data |> count()
