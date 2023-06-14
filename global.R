@@ -53,11 +53,6 @@ onStop(function() {
   poolClose(pool)
 })
 
-
-
-
-
-
 # options -----------------------------------------------------------------
 parametros <- list(
   color = "#236478",
@@ -74,6 +69,10 @@ theme_odes <-  bs_theme(
 
 options(
   highcharter.theme = hc_theme_smpl(
+    plotOptions = list(
+      line = list(marker = list(symbol = "circle")),
+      area = list(marker = list(symbol = "circle", radius = 0))
+    ),
     chart = list(
       style = list(
         fontFamily = parametros$font_family
