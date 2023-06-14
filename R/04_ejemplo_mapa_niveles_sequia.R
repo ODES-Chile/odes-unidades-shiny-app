@@ -2,7 +2,10 @@ source('global.R')
 library(sf)
 
 data_clima_sequia <- tbl(pool, "data_clima_sequia")
+
 data_geo <- sf::read_sf(str_glue("data/vectorial/min/comunas_sim.gpkg"))
+
+data_clima_sequia |> glimpse()
 
 d <- data_clima_sequia |>
   filter(unit == 'comunas' & date == "2023-03-01") |>
