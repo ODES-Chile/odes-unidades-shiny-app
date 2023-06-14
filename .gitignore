@@ -49,3 +49,6 @@ data/vectorial/raw/subsubcuencas.gpkg
 rsconnect/shinyapps.io/frzambra/odes-unidades-shiny-app.dcf
 rsconnect/shinyapps.io/frzambra/odes-unidades-shiny-app.dcf
 rsconnect/shinyapps.io/frzambra/odes-unidades-shiny-app.dcf
+data/data_clima_sequia.gz
+data/dquantiles.gz
+data/dquantiles.rds
