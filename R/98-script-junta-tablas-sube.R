@@ -1,8 +1,6 @@
-library(tidyverse)
+source("global.R")
 
-tbl(sql_con(), "data_clima_sequia")
-
-con <- sql_con()
+con <- pool
 
 tbls <- DBI::dbListTables(con)
 tbls
