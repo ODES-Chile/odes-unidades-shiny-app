@@ -8,6 +8,7 @@
 # source("global.R")
 # data_clima_sequia <- tbl(pool, "data_clima_sequia")
 
+
 function(input, output, session) {
 
   data_clima_sequia <- tbl(pool, "data_clima_sequia")
@@ -65,7 +66,8 @@ function(input, output, session) {
       htmlwidgets::onRender("function(el, x) { L.control.zoom({ position: 'topright' }).addTo(this) }") |>
       setView(lng =  -70.64827, lat = -33.45694, zoom = 4) |>
       leafem::addLogo(
-        img = "https://odes-chile.org/img/logo.png",
+        # https://github.com/r-spatial/leafem/issues/16#issuecomment-1560516396
+        img = "https://raw.githubusercontent.com/ODES-Chile/odes-unidades-shiny-app/main/www/logo.png",
         src= "remote",
         position = "bottomleft",
         offset.x = 5,
@@ -194,7 +196,7 @@ function(input, output, session) {
 
     vr        <- names(which(input$variable == opt_variable))
     unit_name <- dunits |>
-      filter(code == input$map_shape_click$id) |>
+      filter(code == input$map_shape_click$id, unit == u) |>
       pull(unit_name)
 
     data_unidad <- data_clima_sequia |>
@@ -219,9 +221,6 @@ function(input, output, session) {
     fmax      <- fmax()
     data_geo2 <- data_geo2()
 
-    # if(fmax == fmax2()) return(TRUE)
-    # fmax2(fmax)
-
     cli::cli_h3("observer de mapa")
 
     data_variable <- dparvar |>
@@ -232,28 +231,13 @@ function(input, output, session) {
       str_split(", ", simplify = TRUE) |>
       as.vector()
 
-   # scales::show_col(cols)
-
+    # si es spi, spei, eddi se usa el cortes de sequía
     if(str_detect(input$variable, "spi_")){
 
       colorData <- cut(
         data_geo2[["variable"]],
         breaks = c(-Inf, -2, -1.6, -1.3, -0.8, Inf),
         labels = c("Sequía excepcional", "Sequía extrema", "Sequía severa", "Sequía moderada", "Anormalmente seco")
-      )
-
-      data_geo2[["variable_cat"]] <- colorData
-
-      pal <- colorFactor(cols, colorData, levels = levels(colorData))
-
-    } else if (str_detect(input$variable, "spei_")){
-
-      colorData <- cut(
-        data_geo2[["variable"]],
-        breaks = c(-Inf, -2, -1.5, -1, 1, 1.5, 2, Inf),
-        labels = c("Extremadamente seco", "Severamente seco", "Moderadamente seco",
-                   "Normal",
-                   "Moderamente húmedo", "Muy húmedo", "Extremadamente húmedo")
       )
 
       data_geo2[["variable_cat"]] <- colorData
@@ -509,10 +493,13 @@ function(input, output, session) {
     value_boxes <- data_unidad_g |>
       pmap(function(name, last, maxi, mini, data, hc, desc){
         value_box(
+          height = "100%",
           title = str_replace_all(str_to_upper(name), "_", " "),
           value = h2(HTML(last)),
-          span(bsicons::bs_icon("arrow-up"), maxi, "/", bsicons::bs_icon("arrow-down"), mini),
-          # tags$small(desc)
+          tags$span("Valor", class = str_glue("badge badge-pal{sample(1:11, 1)}")),
+          span("min.:", mini, "/ max.:", maxi),
+          # span(bsicons::bs_icon("arrow-up"), maxi, "/", bsicons::bs_icon("arrow-down"), mini),
+          # tags$em(tags$small(desc))
           # hc
         )
       }) |>
@@ -533,7 +520,7 @@ function(input, output, session) {
         # yAxis = 1:4 - 1
         ) |>
       # hc_yAxis_multiples(create_axis(naxis = 4, heights = c(1)))
-      hc_tooltip(table = TRUE, sort = TRUE, valueDecimals = 2) |>
+      hc_tooltip(table = TRUE, sort = FALSE, valueDecimals = 2) |>
       hc_chart(zoomType = "x") |>
       hc_navigator(enabled = TRUE) |>
       hc_size(height = 400) |>
@@ -543,7 +530,8 @@ function(input, output, session) {
 
     showModal(
       modalDialog(
-        title =  htmltools::tagList(un, tags$br(), tags$small(str_glue("De {fmt_fecha(fs[1])} a {fmt_fecha(fs[2])}"))),
+        # title =  htmltools::tagList(un, tags$br(), tags$small(str_glue("De {fmt_fecha(fs[1])} a {fmt_fecha(fs[2])}"))),
+        title = htmltools::tagList("Reporte Sequía ", tags$strong(un), str_glue(" {fmt_fecha(fs[2])}")),
         fluidRow(value_boxes),
         # layout_column_wrap(value_boxes, width = 1/4, fillable = TRUE),
         # layout_columns(value_boxes, col_widths = c(3, 3, 3, 3)),
