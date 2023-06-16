@@ -2,7 +2,10 @@
 page_navbar(
   title  = tags$span(
     class = "title",
-    tags$img(src = "horizontal_SB_blanco.png", height = "30px", style = "margin-top: -5px"),
+    tags$a(
+      tags$img(src = "horizontal_SB_blanco.png", height = "30px", style = "margin-top: -5px"),
+      href = "https://odes-chile.org/"
+      ),
     "Unidades"
   ),
   id = "nav",
