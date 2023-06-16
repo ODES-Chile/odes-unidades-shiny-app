@@ -232,7 +232,9 @@ function(input, output, session) {
       as.vector()
 
     # si es spi, spei, eddi se usa el cortes de sequía
-    if(str_detect(input$variable, "spi_")){
+    if(str_detect(input$variable, "spi_|spei_|eddi_")){
+
+      colorData <- as.numeric(data_geo2[[str_c(input$variable, "_q")]])
 
       colorData <- cut(
         data_geo2[["variable"]],
