@@ -2,6 +2,7 @@
 # shiny
 library(shiny)
 library(leaflet)
+library(leaflet.extras)
 library(leaflet.providers)
 library(highcharter) # remotes::install_github("jbkunst/highcharter")
 library(shinyWidgets)
