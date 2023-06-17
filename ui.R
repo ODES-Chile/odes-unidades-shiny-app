@@ -16,6 +16,7 @@ page_navbar(
     NULL,
     div(class="outer",
       tags$head(
+        tags$link(href = "Isotip_gradiente_azul.png", rel = "icon"),
         # Include our custom CSS
         includeCSS("www/css/styles.css"),
       ),
