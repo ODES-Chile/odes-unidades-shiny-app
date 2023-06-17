@@ -59,8 +59,14 @@ parametros <- list(
   color = "#236478",
   font_family = "Raleway",
   tabla_datos = "estaciones_datos",
-  tabla_estaciones = "estaciones"
-)
+  tabla_estaciones = "estaciones",
+  paleta = c("#730000","#E60000","#FFAA00","#FFD37F","#FFFF00","#FFFFFF",
+             "#8CCDEF","#00BFFF","#1D90FF","#4169E1","#0000FF"),
+  etiquetas = c("Sequía excepcional", "Sequía extrema", "Sequía severa",
+                "Sequía moderada", "Anormalmente seco","Normal",
+                "Anormalmente húmedo","Moderadamente húmedo","Severamente húmedo",
+                "Extramademente húmedo", "Excepcionalmente húmedo")
+  )
 
 theme_odes <-  bs_theme(
   version = 5,
