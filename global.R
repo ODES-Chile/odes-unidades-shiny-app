@@ -68,19 +68,53 @@ theme_odes <-  bs_theme(
   base_font = font_google(parametros$font_family)
 )
 
+# options highcharter -----------------------------------------------------
+newlang_opts <- getOption("highcharter.lang")
+
+newlang_opts$weekdays <- c("domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado")
+newlang_opts$months <- c("enero", "febrero", "marzo", "abril", "mayo", "junio", "julio",
+                         "agosto", "septiembre", "octubre", "noviembre", "diciembre")
+newlang_opts$shortMonths <- c("ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep",
+                              "oct", "nov", "dic")
+
+newlang_opts$loading      <- "Cargando información"
+newlang_opts$downloadCSV  <- "Descargar CSV"
+newlang_opts$downloadJPEG <- "Descargar JPEG"
+newlang_opts$downloadPDF  <- "Descargar PDF"
+newlang_opts$downloadPNG  <- "Descargar PNG"
+newlang_opts$downloadSVG  <- "Descargar SVG"
+newlang_opts$downloadXLS  <- "Descargar XLS"
+newlang_opts$printChart   <- "Imprimir gráfico"
+newlang_opts$viewFullscreen <- "Ver pantalla completa"
+newlang_opts$resetZoom    <- "Resetear zoom"
+
+newlang_opts$thousandsSep <- "."
+newlang_opts$decimalPoint <- ","
+
+
 options(
+  highcharter.lang = newlang_opts,
   highcharter.theme = hc_theme_smpl(
-    plotOptions = list(
-      line = list(marker = list(symbol = "circle")),
-      area = list(marker = list(symbol = "circle", radius = 0))
-    ),
-    chart = list(
-      style = list(
-        fontFamily = parametros$font_family
-      )
-    )
+    color = parametros$color,
+    chart = list(style = list(fontFamily = parametros$font_family)),
+    series = list(marker = list(symbol = "circle"))
+    # colors = parametros$color
   )
 )
+
+# options(
+#   highcharter.theme = hc_theme_smpl(
+#     plotOptions = list(
+#       line = list(marker = list(symbol = "circle")),
+#       area = list(marker = list(symbol = "circle", radius = 0))
+#     ),
+#     chart = list(
+#       style = list(
+#         fontFamily = parametros$font_family
+#       )
+#     )
+#   )
+# )
 
 # helpers -----------------------------------------------------------------
 hc_void <- highchart() |>
