@@ -233,27 +233,25 @@ function(input, output, session) {
 
     # si es spi, spei, eddi se usa el cortes de sequía
     if(str_detect(input$variable, "spi_|spei_|eddi_")){
+      # input$variable <- "spei_12"
 
       colorData <- as.numeric(data_geo2[[str_c(input$variable, "_q")]])
 
-      colorData <- cut(
-        data_geo2[["variable"]],
-        breaks = c(-Inf, -2, -1.6, -1.3, -0.8, Inf),
-        labels = c("Sequía excepcional", "Sequía extrema", "Sequía severa", "Sequía moderada", "Anormalmente seco")
-      )
+      if(str_detect(input$variable, "eddi")) colorData <- 12 - colorData
+
+      palette <- c("#730000","#E60000","#FFAA00","#FFD37F","#FFFF00","#FFFFFF",
+                   "#8CCDEF","#00BFFF","#1D90FF","#4169E1","#0000FF")
+      labels <-  c("Sequía excepcional", "Sequía extrema", "Sequía severa",
+                   "Sequía moderada", "Anormalmente seco","Normal",
+                   "Anormalmente húmedo","Moderadamente húmedo","Severamente húmedo",
+                   "Extramademente húmedo", "Excepcionalmente húmedo")
+
+      colorData <- factor(labels[colorData], levels = labels)
 
       data_geo2[["variable_cat"]] <- colorData
 
-      pal <- colorFactor(cols, colorData, levels = levels(colorData))
+      pal <- colorFactor(palette = palette, domain = colorData)
 
-    } else {
-
-      colorData <- data_geo2[["variable"]]
-      pal <- colorBin(cols, colorData, 10, pretty = TRUE, reverse = FALSE)
-
-    }
-
-    if(str_detect(input$variable, "spei_|spi_")) {
       lb <- ~paste0(nombre_unidad , " ",  round(variable, 3), " (", variable_cat, ")")
 
       popp <- ~paste0(
@@ -266,10 +264,14 @@ function(input, output, session) {
           onclick = "Shiny.onInputChange('reporte', Math.random())"
         )
       )
-      fc <- ~pal(`variable_cat`)
 
     } else {
       # numerica
+
+      colorData <- data_geo2[["variable"]]
+
+      pal <- colorBin(cols, colorData, 10, pretty = TRUE, reverse = FALSE)
+
       lb <-  ~paste0(nombre_unidad , " ",  round(variable, 3))
 
       popp <- ~paste0(
@@ -283,14 +285,7 @@ function(input, output, session) {
         )
       )
 
-      fc <- ~pal(`variable`)
     }
-
-    data_geo2
-
-    # data_geo2 |> select(id_unidad) |> as.data.frame() |> count(id_unidad, sort = TRUE) |> as_tibble()
-
-    # data_geo2 |> filter(id_unidad == 10903) |> sample_frac(1) |> mapview::mapview()
 
     leafletProxy("map") |>
       # leaflet() |> addTiles() |>
@@ -298,37 +293,36 @@ function(input, output, session) {
       clearTopoJSON() |>
       leaflet::addPolygons(
         data = data_geo2,
-        fillColor = fc,
-        weight = .5,
-        dashArray = "3",
-        stroke = NULL,
-        fillOpacity = 0.7,
-        layerId = ~id_unidad,
-        popup = popp,
-        label = lb,
+        fillColor        = ~ pal(colorData),
+        weight           = .5,
+        dashArray        = "3",
+        stroke           = NULL,
+        fillOpacity      = 0.7,
+        layerId          = ~ id_unidad,
+        popup            = popp,
+        label            = lb,
         highlightOptions = highlightOptions(
-          color = "white",
-          weight = 4,
-          fillColor = parametros$color,
+          color        = "white",
+          weight       = 2,
+          fillColor    = parametros$color,
           bringToFront = TRUE
           ),
         labelOptions = labelOptions(
-          # offset = c(-20, -20),
           style = list(
-            "font-family" = parametros$font_family,
-            "box-shadow" = "2px 2px rgba(0,0,0,0.15)",
-            "font-size" = "15px",
-            "padding" = "15px",
+            "font-family"  = parametros$font_family,
+            "box-shadow"   = "2px 2px rgba(0,0,0,0.15)",
+            "font-size"    = "15px",
+            "padding"      = "15px",
             "border-color" = "rgba(0,0,0,0.15)"
           )
         )
       ) |>
       addLegend(
         position  = "topright",
-        na.label = "No disponible",
+        na.label  = "No disponible",
         pal       = pal,
         values    = colorData,
-        labFormat = labelFormat(transform = function(x) sort(x, decreasing = FALSE)),
+        # labFormat = labelFormat(transform = function(x) sort(x, decreasing = FALSE)),
         layerId   = "colorLegend",
         title     = dparvar |>
           filter(variable == input$variable) |>
@@ -400,12 +394,18 @@ function(input, output, session) {
 
     data_unidad  <- data_unidad()
 
-    # data_unidad <- data_unidad |>
-
     data_unidad[["variable"]] <- data_unidad[[input$variable]]
 
     data_unidad <- data_unidad |>
-      select(date, code, unique(c("spei_12", "eddi_12", "sma_100cm", "zndvi", "variable")))
+      select(date, code,
+             all_of(
+               c("spei_12", "spei_12_q",
+                 "eddi_12", "eddi_12_q",
+                 "sma_100cm", "sma_100cm_q",
+                 "zndvi", "zndvi_q",
+                 "variable")
+               )
+             )
 
     fs <- data_unidad |>
       summarise(min(date), max(date)) |>
@@ -424,11 +424,10 @@ function(input, output, session) {
       mutate(y = variable) |>
       select(x, y, group)
 
-    reprep <- function(n = 10, value1 = "a", value2 = "b"){
-      c(rep(value1, n - 1), value2)
-    }
+    reprep    <- function(n = 10, value1 = "a", value2 = "b"){ c(rep(value1, n - 1), value2) }
     ngroups   <- datos |> distinct(group) |> nrow()
     typechart <- ifelse(attr(datos, "vr") == "Precipitación", "column", "spline")
+
     mtdta     <- dparvar |>
       filter(desc == attr(data_unidad, "vr")) |>
       pull(metadata)
@@ -455,7 +454,7 @@ function(input, output, session) {
     un <- paste(as.character(attr(datos, "unit_name")), collapse = " ")
 
     data_unidad_g <- data_unidad |>
-      select(-code, -variable) |>
+      select(date, spei_12, eddi_12, sma_100cm, zndvi) |>
       pivot_longer(cols = -date) |>
       group_by(name) |>
       summarise(
@@ -484,21 +483,41 @@ function(input, output, session) {
             )
         })
       ) |>
-      mutate(across(where(is.numeric), round, 2))
+      mutate(across(where(is.numeric), ~ round(.x, 2)))
+
+    data_unidad_g2 <- data_unidad |>
+      arrange(date) |>
+      summarise(across(ends_with("_q"), ~ last(.x, na_rm = TRUE))) |>
+      pivot_longer(cols = everything(), names_to = "name", values_to = "q") |>
+      mutate(
+        name = str_remove(name, "_q"),
+        q = as.numeric(q)
+        )
 
     data_unidad_g <- data_unidad_g |>
-      left_join(
-        dparvar |> select(name = variable, desc),
-        by = "name"
+      left_join(dparvar |> select(name = variable, desc), by = "name") |>
+      left_join(data_unidad_g2, by = "name")
+
+    labels <-  c("Sequía excepcional", "Sequía extrema", "Sequía severa",
+                 "Sequía moderada", "Anormalmente seco","Normal",
+                 "Anormalmente húmedo","Moderadamente húmedo","Severamente húmedo",
+                 "Extramademente húmedo", "Excepcionalmente húmedo")
+
+
+    data_unidad_g <- data_unidad_g |>
+      mutate(
+        name = str_replace_all(str_to_upper(name), "_", " "),
+        name = ifelse(name == "ZNDVI", "zNDVI", name),
+        q_lbl = labels[q]
       )
 
     value_boxes <- data_unidad_g |>
-      pmap(function(name, last, maxi, mini, data, hc, desc){
+      pmap(function(name, last, maxi, mini, data, hc, desc, q, q_lbl){
         value_box(
           height = "100%",
-          title = str_replace_all(str_to_upper(name), "_", " "),
+          title = name,
           value = h2(HTML(last)),
-          tags$span("Valor", class = str_glue("badge badge-pal{sample(1:11, 1)}")),
+          tags$span(q_lbl, class = str_glue("badge badge-pal{q}")),
           span("min.:", mini, "/ max.:", maxi),
           # span(bsicons::bs_icon("arrow-up"), maxi, "/", bsicons::bs_icon("arrow-down"), mini),
           # tags$em(tags$small(desc))
@@ -506,10 +525,10 @@ function(input, output, session) {
         )
       }) |>
       map(column, width = 3) |>
-      htmltools::tagList() # layout_column_wrap(width = 1/4, fillable = TRUE)
+      htmltools::tagList()
 
     hc_sequia <- data_unidad |>
-      select(-code, -variable) |>
+      select(date, spei_12, eddi_12, sma_100cm, zndvi) |>
       pivot_longer(cols = -date) |>
       left_join(
         dparvar |> select(name = variable, desc),
