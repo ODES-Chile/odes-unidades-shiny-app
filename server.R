@@ -148,6 +148,7 @@ function(input, output, session) {
 
   })
 
+  # reactivo intermedio para filtrar por macrozona
   data_geo2 <- reactive({
 
     data_geo <- data_geo()
@@ -203,8 +204,6 @@ function(input, output, session) {
       filter(code == id, unit == u) |>
       filter(f1 <= date) |>
       filter(date <= f2) |>
-      # rename(variable := v) |>
-      # select(date, code, unique(c("spei_12", "spei_24", "tas", "pre", v))) |>
       arrange(date) |>
       collect()
 
@@ -239,18 +238,14 @@ function(input, output, session) {
 
       if(str_detect(input$variable, "eddi")) colorData <- 12 - colorData
 
-      palette <- c("#730000","#E60000","#FFAA00","#FFD37F","#FFFF00","#FFFFFF",
-                   "#8CCDEF","#00BFFF","#1D90FF","#4169E1","#0000FF")
-      labels <-  c("Sequía excepcional", "Sequía extrema", "Sequía severa",
-                   "Sequía moderada", "Anormalmente seco","Normal",
-                   "Anormalmente húmedo","Moderadamente húmedo","Severamente húmedo",
-                   "Extramademente húmedo", "Excepcionalmente húmedo")
-
-      colorData <- factor(labels[colorData], levels = labels)
+      colorData <- factor(
+        parametros$etiquetas[colorData],
+        levels = parametros$etiquetas
+        )
 
       data_geo2[["variable_cat"]] <- colorData
 
-      pal <- colorFactor(palette = palette, domain = colorData)
+      pal <- colorFactor(palette = parametros$paleta, domain = colorData)
 
       lb <- ~paste0(nombre_unidad , " ",  round(variable, 3), " (", variable_cat, ")")
 
@@ -275,7 +270,7 @@ function(input, output, session) {
       lb <-  ~paste0(nombre_unidad , " ",  round(variable, 3))
 
       popp <- ~paste0(
-        nombre_unidad , " ",  round(variable, 3), " ", data_variable$unidad, "",
+        nombre_unidad , " ",  round(variable, 3), " ", coalesce(data_variable$unidad, ""), "",
         str_glue("<br/>{fmt_fecha(fmax)}<br/>"),
         tags$br(),
         actionButton(
@@ -489,36 +484,28 @@ function(input, output, session) {
       arrange(date) |>
       summarise(across(ends_with("_q"), ~ last(.x, na_rm = TRUE))) |>
       pivot_longer(cols = everything(), names_to = "name", values_to = "q") |>
-      mutate(
-        name = str_remove(name, "_q"),
-        q = as.numeric(q)
-        )
+      mutate(name = str_remove(name, "_q"), q = as.numeric(q))
 
     data_unidad_g <- data_unidad_g |>
       left_join(dparvar |> select(name = variable, desc), by = "name") |>
       left_join(data_unidad_g2, by = "name")
 
-    labels <-  c("Sequía excepcional", "Sequía extrema", "Sequía severa",
-                 "Sequía moderada", "Anormalmente seco","Normal",
-                 "Anormalmente húmedo","Moderadamente húmedo","Severamente húmedo",
-                 "Extramademente húmedo", "Excepcionalmente húmedo")
-
-
     data_unidad_g <- data_unidad_g |>
       mutate(
-        name = str_replace_all(str_to_upper(name), "_", " "),
-        name = ifelse(name == "ZNDVI", "zNDVI", name),
-        q_lbl = labels[q]
+        q     = ifelse(str_detect(name, "eddi"), 12 - q, q),
+        q_lbl = parametros$etiquetas[q],
+        name  = str_replace_all(str_to_upper(name), "_", " "),
+        name  = ifelse(name == "ZNDVI", "zNDVI", name)
       )
 
     value_boxes <- data_unidad_g |>
       pmap(function(name, last, maxi, mini, data, hc, desc, q, q_lbl){
         value_box(
           height = "100%",
-          title = name,
-          value = h2(HTML(last)),
+          title = tags$span(name, align = "center"),
+          value = tags$h2(HTML(last), align = "center"),
           tags$span(q_lbl, class = str_glue("badge badge-pal{q}")),
-          span("min.:", mini, "/ max.:", maxi),
+          span("min.:", mini, "/ max.:", maxi, align = "center"),
           # span(bsicons::bs_icon("arrow-up"), maxi, "/", bsicons::bs_icon("arrow-down"), mini),
           # tags$em(tags$small(desc))
           # hc
