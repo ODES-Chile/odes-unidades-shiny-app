@@ -17,6 +17,12 @@ page_navbar(
     div(class="outer",
       tags$head(
         tags$link(href = "Isotip_gradiente_azul.png", rel = "icon"),
+        # GA
+        tags$script(
+          src = "https://www.googletagmanager.com/gtag/js?id=G-CYG993XQRT",
+          async = ""
+        ),
+        tags$script(src = "js/ga.js"),
         # Include our custom CSS
         includeCSS("www/css/styles.css"),
       ),
