@@ -103,24 +103,13 @@ options(
   highcharter.theme = hc_theme_smpl(
     color = parametros$color,
     chart = list(style = list(fontFamily = parametros$font_family)),
-    series = list(marker = list(symbol = "circle"))
-    # colors = parametros$color
+    plotOptions = list(
+      series = list(marker = list(symbol = "circle")),
+      line = list(marker = list(symbol = "circle")),
+      area = list(marker = list(symbol = "circle"))
+      )
+    )
   )
-)
-
-# options(
-#   highcharter.theme = hc_theme_smpl(
-#     plotOptions = list(
-#       line = list(marker = list(symbol = "circle")),
-#       area = list(marker = list(symbol = "circle", radius = 0))
-#     ),
-#     chart = list(
-#       style = list(
-#         fontFamily = parametros$font_family
-#       )
-#     )
-#   )
-# )
 
 # helpers -----------------------------------------------------------------
 hc_void <- highchart() |>
