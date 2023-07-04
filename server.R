@@ -69,17 +69,17 @@ function(input, output, session) {
         img = "https://raw.githubusercontent.com/ODES-Chile/odes-unidades-shiny-app/main/www/logo.png",
         src= "remote",
         position = "bottomleft",
-        offset.x = 5,
+        offset.x = 15,
         offset.y = 5,
         ) |>
-      leaflet.extras::addSearchOSM(
-        options = leaflet.extras::searchOptions(
-          textErr = "Ubicación no encontrada",
-          textCancel = "Cancelar",
-          textPlaceholder = "Buscar...",
-          position = "bottomright"
-        )
-      ) |>
+      # leaflet.extras::addSearchOSM(
+      #   options = leaflet.extras::searchOptions(
+      #     textErr = "Ubicación no encontrada",
+      #     textCancel = "Cancelar",
+      #     textPlaceholder = "Buscar...",
+      #     position = "bottomright"
+      #   )
+      # ) |>
       addEasyButton(
         easyButton(
           position = "bottomright",
@@ -246,7 +246,16 @@ function(input, output, session) {
 
       pal <- colorFactor(palette = parametros$paleta, domain = colorData)
 
-      lb <- ~paste0(nombre_unidad , " ",  round(variable, 3), " (", variable_cat, ")")
+      # pal(colorData)
+
+      # lb <- ~paste0(
+      #   nombre_unidad , " ",  round(variable, 3), " (", variable_cat, ")\n",
+      #   str_glue("<br/>{fmt_fecha(fmax)}<br/>")
+      #   )
+
+      lb <- data_geo2 |>
+        str_glue_data("{nombre_unidad} {round(variable, 3)} ({variable_cat})<br>{fmt_fecha(fmax)}") |>
+        map(htmltools::HTML)
 
       popp <- ~paste0(
         nombre_unidad , " ",  round(variable, 3), " (", variable_cat, ")",
@@ -266,7 +275,26 @@ function(input, output, session) {
 
       pal <- colorBin(cols, colorData, 10, pretty = TRUE, reverse = FALSE)
 
-      lb <-  ~paste0(nombre_unidad , " ",  round(variable, 3))
+      # jenks
+      Nclass <- 5
+      cls_pre <- classIntervals(colorData, style = 'jenks', Nclass)
+
+      cols <- colorRampPalette(cols)(Nclass)
+
+      colorData <- santoku::chop(colorData, breaks = cls_pre$brks, labels = santoku::lbl_glue("{l} - {r}"))
+
+      pal <- colorFactor(palette = cols, domain = colorData)
+
+      # pal(colorData)
+
+      lb <- data_geo2 |>
+        str_glue_data("{nombre_unidad} {round(variable, 3)} {coalesce(data_variable$unidad, \"\")}<br>{fmt_fecha(fmax)}") |>
+        map(htmltools::HTML)
+
+      # lb <- ~paste0(
+      #   nombre_unidad , " ",  round(variable, 3), " ", coalesce(data_variable$unidad, ""), "\n",
+      #   str_glue("{fmt_fecha(fmax)}")
+      #   )
 
       popp <- ~paste0(
         nombre_unidad , " ",  round(variable, 3), " ", coalesce(data_variable$unidad, ""), "",
@@ -365,17 +393,27 @@ function(input, output, session) {
       select(x = date, y = variable) |>
       mutate(x = datetime_to_timestamp(x), y = round(y, 2))
 
-    typechart <- ifelse(attr(data_unidad, "vr") == "Precipitación", "column", "spline")
+    is_special <- str_detect(input$variable, "spi_|spei_|eddi_|sma_100cm|zndvi")
+
+    chart_type <- case_when(
+      attr(data_unidad, "vr") == "Precipitación" ~ "column",
+      is_special                                 ~  "areaspline",
+      TRUE                                       ~  "spline"
+    )
+
+    chart_color     <- ifelse(is_special, "#0088FF", parametros$color)
+    chart_color_neg <- ifelse(is_special, "#FF0000", parametros$color)
 
     highchartProxy("chart") |>
       hcpxy_update_series(
         id = "data",
         lineWidth = 1,
-        type = typechart,
+        type = chart_type,
         states = list(hover = list(lineWidthPlus = 0)),
         data = list_parse2(datos),
         name = attr(data_unidad, "vr"),
-        color = parametros$color
+        color = chart_color,
+        negativeColor = chart_color_neg
       ) |>
       hcpxy_update(subtitle = list(text = attr(data_unidad, "unit_name")))
 
@@ -486,7 +524,7 @@ function(input, output, session) {
       mutate(name = str_remove(name, "_q"), q = as.numeric(q))
 
     data_unidad_g <- data_unidad_g |>
-      left_join(dparvar |> select(name = variable, desc), by = "name") |>
+      left_join(dparvar |> select(name = variable, desc, metadata), by = "name") |>
       left_join(data_unidad_g2, by = "name")
 
     data_unidad_g <- data_unidad_g |>
@@ -497,14 +535,31 @@ function(input, output, session) {
         name  = ifelse(name == "ZNDVI", "zNDVI", name)
       )
 
+    tooltipIcon <- function(text, ...,
+                            link = '#',
+                            trigger = 'focus hover',
+                            dataplacement = "auto bottom") {
+      tags$a(
+        ...,
+        href = link,
+        `data-toggle` = 'tooltip',
+        `data-placement` = dataplacement,
+        `data-trigger` = trigger,
+        `data-html`="true",
+        title = text
+      )
+    }
+
     value_boxes <- data_unidad_g |>
-      pmap(function(name, last, maxi, mini, data, hc, desc, q, q_lbl){
+      pmap(function(name, last, maxi, mini, data, hc, desc, q, q_lbl, metadata){
         value_box(
           height = "100%",
           title = tags$span(name, align = "center"),
           value = tags$h2(HTML(last), align = "center"),
           tags$span(q_lbl, class = str_glue("badge badge-pal{q}")),
           span("min.:", mini, "/ max.:", maxi, align = "center"),
+          tags$br(),
+          tags$span(tooltipIcon(metadata, tags$h5(icon("info-circle"), style= "opacity: 0.5;")), align = "right")
           # span(bsicons::bs_icon("arrow-up"), maxi, "/", bsicons::bs_icon("arrow-down"), mini),
           # tags$em(tags$small(desc))
           # hc
@@ -524,6 +579,7 @@ function(input, output, session) {
       hchart(
         "line",
         hcaes(date, value, group = desc),
+        showInNavigator = TRUE
         # yAxis = 1:4 - 1
         ) |>
       # hc_yAxis_multiples(create_axis(naxis = 4, heights = c(1)))
@@ -585,22 +641,7 @@ function(input, output, session) {
     str_glue("{unitname}_{input$fecha[[1]]}-{input$fecha[[2]]}")
   })
 
-  output$descargar_png <- downloadHandler(
-    filename = function() {
-      fs::path(nombre_descarga_datos(), ext = "png")
-    },
-    content = function(file) {
-      screenshot(
-        download = FALSE,
-        # id = "shiny-modal-wrapper",
-        filename = "screenshot.png",
-        timer = 1,
-        server_dir = "."
-        )
-      fs::file_move("screenshot.png", file)
-    }
-  )
-
+  # descargar datos reporte
   output$descargar_datos <- downloadHandler(
     filename = function() {
       fs::path(nombre_descarga_datos(), ext = "xlsx")
@@ -610,6 +651,27 @@ function(input, output, session) {
       data_unidad <- data_unidad()
       data_unidad <- data_unidad |>
         select(fecha = date, eddi_12, spei_12, sma_100cm,	zndvi)
+      writexl::write_xlsx(data_unidad, file)
+    }
+  )
+
+  nombre_descarga_datos_mini <- reactive({
+    unitname <- dunits |>
+      filter(unit == input$unidad, code == input$map_shape_click$id) |>
+      pull(unit_name)
+    str_glue("{unitname}_{input$variable}_{input$fecha[[1]]}-{input$fecha[[2]]}")
+  })
+
+  # descargar datos mini
+  output$descargar_datos_mini<- downloadHandler(
+    filename = function() {
+      fs::path(nombre_descarga_datos_mini(), ext = "xlsx")
+    },
+    content = function(file) {
+      tempdata    <- file.path(tempdir(), "datos.xlsx")
+      data_unidad <- data_unidad()
+      data_unidad <- data_unidad |>
+        select(fecha = date, all_of(input$variable))
       writexl::write_xlsx(data_unidad, file)
     }
   )
