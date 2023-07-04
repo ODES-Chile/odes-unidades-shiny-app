@@ -1,0 +1,112 @@
+.bg-dark, .navbar.navbar-inverse { background-color: #236478 !important;}
+
+/* outer map */
+div.outer {
+  position: fixed;
+/*  top: 56px; */
+  top: 46px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+#controls {
+  /* Appearance  */
+  background-color: white;
+  padding: 0 20px 20px 20px;
+  cursor: move;
+
+  /* Fade out while not hovering */
+  opacity: 0.8;
+  /* zoom: 0.9; */
+  transition: opacity 250ms 500ms;
+
+}
+
+#controls:hover {
+  /* Fade in while hovering */
+  opacity: 0.95;
+  transition-delay: 0;
+}
+
+#controls > .form-group {
+  margin-bottom: 0rem;
+}
+
+#controls > label {
+  margin-bottom: 0rem;
+}
+
+/* Position and style citation */
+#cite {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  font-size: 12px;
+}
+
+/*
+input[type="number"] {
+  max-width: 80%;
+}
+*/
+
+/* Customize fonts
+body, label, input, button, select {
+  font-family: 'Helvetica Neue', Helvetica;
+  font-weight: 200;
+}
+h1, h2, h3, h4 { font-weight: 400; }
+*/
+
+/* If not using map tiles, show a white background
+.leaflet-container {
+  background-color: white !important;
+}
+*/
+
+.leaflet-popup-content-wrapper {
+  /* background: #DB0925; */
+  border-radius: 3px;
+  font-family: 'Raleway';
+  font-size: 15px;
+  }
+
+.leaflet-control{
+  font-family: 'Raleway';
+}
+
+/*
+.leaflet-popup-content-wrapper a {
+  color:rgba(255,255,255,0.5);
+  }
+leaflet-popup-tip-container {
+  width:30px;
+  height:15px;
+  }
+.leaflet-popup-tip {
+  border-left:15px solid transparent;
+  border-right:15px solid transparent;
+  border-top:15px solid #2c3e50;
+  }
+*/
+
+/*
+pal    <- c('#730000','#E60000','#FFAA00','#FFD37F','#FFFF00','#FFFFFF','#8CCDEF','#00BFFF','#1D90FF','#4169E1','#0000FF')
+seq    <- 1:length(pal)
+txtcol <- ifelse(between(seq, 3, 8), "#000", "#fff")
+str_glue(".badge-pal{seq} {{color: {txtcol} !important; background-color: {pal};}}")
+*/
+.badge-pal1 {color: #fff !important; background-color: #730000;}
+.badge-pal2 {color: #fff !important; background-color: #E60000;}
+.badge-pal3 {color: #000 !important; background-color: #FFAA00;}
+.badge-pal4 {color: #000 !important; background-color: #FFD37F;}
+.badge-pal5 {color: #000 !important; background-color: #FFFF00;}
+.badge-pal6 {color: #000 !important; background-color: #FFFFFF;}
+.badge-pal7 {color: #000 !important; background-color: #8CCDEF;}
+.badge-pal8 {color: #000 !important; background-color: #00BFFF;}
+.badge-pal9 {color: #fff !important; background-color: #1D90FF;}
+.badge-pal10 {color: #fff !important; background-color: #4169E1;}
+.badge-pal11 {color: #fff !important; background-color: #0000FF;}
