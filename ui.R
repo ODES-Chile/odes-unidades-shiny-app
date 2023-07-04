@@ -11,6 +11,8 @@ page_navbar(
   id = "nav",
   lang = "es",
   theme = theme_odes,
+  fillable = TRUE,
+  fillable_mobile = TRUE,
   # sidebar -----------------------------------------------------------------
   sidebar = sidebar(
     width = 400,
