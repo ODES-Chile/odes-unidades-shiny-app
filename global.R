@@ -7,6 +7,7 @@ library(leaflet.providers)
 library(highcharter) # remotes::install_github("jbkunst/highcharter")
 library(shinyWidgets)
 library(bslib)
+library(classInt)
 
 # data
 library(tidyverse)
@@ -154,9 +155,6 @@ fmt_fecha <- function(f = "2010-04-01"){
 }
 
 # data --------------------------------------------------------------------
-# data <- readRDS("data/01_dummy_data.rds")
-# data   <- readRDS("data/02_data_min.rds")
-# data   <- readRDS("data/02_data.rds")
 dunits <- readRDS("data/01_dunits.rds")
 macrozonas <- sf::read_sf("data/macrozonas_chile.gpkg")
 
@@ -183,17 +181,11 @@ nombre_key <- list(
   )
 
 # input opciones ----------------------------------------------------------
-# opt_macrozona <- macrozonas |>
-#   as.data.frame() |>
-#   pull(macrozona)
 opt_macrozona <- c(
-  "Todas",
-  "Norte Grande",
-  "Norte Chico",
-  "Zona Central",
-  "Zona Sur",
-  "Zona Austral"
+  "Todas", "Norte Grande", "Norte Chico",
+  "Zona Central", "Zona Sur", "Zona Austral"
   )
+
 opt_macrozona <- str_to_lower(opt_macrozona)
 opt_macrozona <- set_names(opt_macrozona, str_to_title(opt_macrozona))
 
@@ -205,42 +197,9 @@ opt_fecha <- tbl(sql_con(), "data_clima_sequia") |>
   # filter(year(date) >= 2011) |> # cuidado con el data_variable que filtra anios
   pull()
 
-# opt_variable <- tbl(sql_con(), "data_clima_sequia") |>
-#   select(-unit, -code, -date) |>
-#   # select(-tipo, -codigo, -fecha) |>
-#   names()
-
 opt_variable <- dparvar |>
   select(desc, variable) |>
   deframe()
-
-# opt_variable <- list(
-#   # "Variables Meteorológicas" = list(
-#     # "Demanda evaporativa de la atmósfera" = "pet",
-#   "Evapotranspiración" = "pet",
-#     "Precipitación" = "pre",
-#     "Temperatura" ="tas",
-#     "Temperatura Mínima" ="tasmin",
-#     "Temperatura Máxima" ="tasmax",
-#   #   ),
-#   # "Indicadores de Sequía" = list(
-#     "SPEI 1 mes" = "spei_1",
-#     "SPEI 3 meses" = "spei_3",
-#     "SPEI 6 meses" = "spei_6",
-#     "SPEI 12 meses" = "spei_12",
-#     "SPEI 24 meses" = "spei_24",
-#     "SPI 1 mes" = "spi_1",
-#     "SPI 3 meses" = "spi_3",
-#     "SPI 6 meses" = "spi_6",
-#     "SPI 12 meses" = "spi_12",
-#     "SPI 24 meses" = "spi_24",
-#     "SPEI-1 era" = "SPEI-1_era",
-#     "SPEI-3 era" = "SPEI-3_era",
-#     "SPEI-6 era" = "SPEI-6_era",
-#     "SPEI-12 era" = "SPEI-12_era",
-#     "SPEI-24 era" = "SPEI-24_era",
-#     "SPEI-36 era" = "SPEI-36_era"
-#   )
 
 opt_unidad <-  c(
   "Regiones" = "regiones",
@@ -248,7 +207,7 @@ opt_unidad <-  c(
   "Comunas" = "comunas",
   `Distrito censal` = "distrito_censal",
   "Cuencas" =  "cuencas",
-  "Subuencas" = "subcuencas",
+  "Subcuencas" = "subcuencas",
   "Subsubcuencas" = "subsubcuencas"
 )
 
