@@ -394,6 +394,7 @@ function(input, output, session) {
       mutate(x = datetime_to_timestamp(x), y = round(y, 2))
 
     is_special <- str_detect(input$variable, "spi_|spei_|eddi_|zcndvi_|zcsm_")
+    is_eddi <- str_detect(input$variable, "eddi_")
 
     chart_type <- case_when(
       attr(data_unidad, "vr") == "Precipitación" ~ "column",
@@ -402,7 +403,12 @@ function(input, output, session) {
     )
 
     chart_color     <- ifelse(is_special, "#0088FF", parametros$color)
-    chart_color_neg <- ifelse(is_special, "#FF0000", parametros$color)
+    chart_color_neg <- ifelse(is_special , "#FF0000", parametros$color)
+
+    if (is_eddi){
+      chart_color     <- ifelse(is_eddi, "#FF0000", parametros$color)
+      chart_color_neg <- ifelse(is_eddi , "#0088FF", parametros$color)
+    }
 
     highchartProxy("chart") |>
       hcpxy_update_series(
