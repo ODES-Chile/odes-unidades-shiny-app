@@ -230,7 +230,7 @@ function(input, output, session) {
       as.vector()
 
     # si es spi, spei, eddi se usa el cortes de sequía
-    if(str_detect(input$variable, "spi_|spei_|eddi_|sma_100cm|zndvi|zcndvi|zcsm")){
+    if(str_detect(input$variable, "spi_|spei_|eddi_|zcndvi_|zcsm_")){
       # input$variable <- "spei_12"
 
       colorData <- as.numeric(data_geo2[[str_c(input$variable, "_q")]])
@@ -393,7 +393,7 @@ function(input, output, session) {
       select(x = date, y = variable) |>
       mutate(x = datetime_to_timestamp(x), y = round(y, 2))
 
-    is_special <- str_detect(input$variable, "spi_|spei_|eddi_|sma_100cm|zndvi")
+    is_special <- str_detect(input$variable, "spi_|spei_|eddi_|zcndvi_|zcsm_")
 
     chart_type <- case_when(
       attr(data_unidad, "vr") == "Precipitación" ~ "column",
