@@ -433,8 +433,8 @@ function(input, output, session) {
              all_of(
                c("spei_12", "spei_12_q",
                  "eddi_12", "eddi_12_q",
-                 "sma_100cm", "sma_100cm_q",
-                 "zndvi", "zndvi_q",
+                 "zcsm_12", "zcsm_12_q",
+                 "zcndvi_3", "zcndvi_3_q",
                  "variable")
                )
              )
@@ -486,7 +486,7 @@ function(input, output, session) {
     un <- paste(as.character(attr(datos, "unit_name")), collapse = " ")
 
     data_unidad_g <- data_unidad |>
-      select(date, spei_12, eddi_12, sma_100cm, zndvi) |>
+      select(date, spei_12, eddi_12, zcsm_12, zcndvi_3) |>
       pivot_longer(cols = -date) |>
       group_by(name) |>
       summarise(
@@ -569,7 +569,7 @@ function(input, output, session) {
       htmltools::tagList()
 
     hc_sequia <- data_unidad |>
-      select(date, spei_12, eddi_12, sma_100cm, zndvi) |>
+      select(date, spei_12, eddi_12, zcsm_12, zcndvi_3) |>
       pivot_longer(cols = -date) |>
       left_join(
         dparvar |> select(name = variable, desc),
@@ -650,7 +650,7 @@ function(input, output, session) {
       tempdata    <- file.path(tempdir(), "datos.xlsx")
       data_unidad <- data_unidad()
       data_unidad <- data_unidad |>
-        select(fecha = date, eddi_12, spei_12, sma_100cm,	zndvi)
+        select(fecha = date, eddi_12, spei_12, zcsm_12,	zcndvi_3)
       writexl::write_xlsx(data_unidad, file)
     }
   )
