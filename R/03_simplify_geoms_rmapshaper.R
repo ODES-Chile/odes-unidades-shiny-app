@@ -15,7 +15,7 @@ lapply(seq_along(files),\(i){
     write_sf(paste0('data/vectorial/min/',names[i],'_sim.gpkg'))
 })
 
-geom <- read_sf('data/vectorial/min/comunas_sim.gpkg')
+geom <- read_sf('data/vectorial/min/provincias_sim.gpkg')
 
 tm_shape(geom) +
   tm_polygons()

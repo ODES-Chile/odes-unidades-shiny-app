@@ -38,6 +38,7 @@ page_navbar(
     # actionButton("guide", "Guide")
   ),
   # mapa --------------------------------------------------------------------
+<<<<<<< HEAD
   bslib::nav_panel(
     title = "Mapa",
     icon  = icon("map-location-dot"),
@@ -64,6 +65,42 @@ page_navbar(
           #   tags$dt("Macrozona"),tags$dd(str_c(rep("Explicacion", 20), collapse = " ")),
           #   tags$dt("Unidad Administrativa"),tags$dd("Explicacion 2")
           #   )
+=======
+  bslib::nav(
+    NULL,
+    div(class="outer",
+      tags$head(
+        # Include our custom CSS
+        includeCSS("www/css/styles.css"),
+      ),
+      # If not using custom CSS, set height of leafletOutput to a number instead of percent
+      leafletOutput("map", width="100%", height="100%"),
+      # Shiny versions prior to 0.11 should use class = "modal" instead.
+      absolutePanel(
+        id = "controls",
+        class = "panel panel-default",
+        fixed = TRUE, draggable = FALSE,
+        width = "auto", height = "auto",
+        top = 46 + 10, left = 10,
+        right = "auto", bottom = "auto",
+
+        tags$br(),
+
+        conditionalPanel(
+          "input.showpanel",
+          selectInput("macrozona", tags$small("Macrozona"), opt_macrozona, multiple = FALSE), # selected = "zona central",
+          selectInput("unidad", tags$small("Unidad administrativa"), opt_unidad),
+          selectInput("variable", tags$small("Variable"), opt_variable, selected = "pre", selectize = TRUE),
+          sliderTextInput("fecha", tags$small("Fecha"), opt_fecha, selected = c(tail(opt_fecha, 12 * 10)[1], tail(opt_fecha, 1))),
+
+          conditionalPanel(
+            "input.showchart",
+            # "hchart va en 2do contitaion panel",
+            highchartOutput("chart", width = "100%", height = "200px"),
+            # actionButton("reporte2","Generar reporte", icon = icon("file"),  class = "btn-primary btn-sm"),
+            # tags$br(),
+            # tags$br(),
+>>>>>>> 86c8383 (actualizacion commit no ealizado)
           )
         )
       )
