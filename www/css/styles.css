@@ -23,6 +23,10 @@
   font-family: 'Raleway';
 }
 
+.leaflet .legend {
+  font-family: "Source Code Pro";
+}
+
 /*
 .leaflet-popup-content-wrapper a {
   color:rgba(255,255,255,0.5);
