@@ -59,6 +59,7 @@ onStop(function() {
 parametros <- list(
   color = "#236478",
   font_family = "Raleway",
+  font_family_code = "Source Code Pro",
   tabla_datos = "estaciones_datos",
   tabla_estaciones = "estaciones",
   paleta = c("#730000","#E60000","#FFAA00","#FFD37F","#FFFF00","#FFFFFF",
@@ -72,7 +73,8 @@ parametros <- list(
 theme_odes <-  bs_theme(
   version = 5,
   primary = parametros$color,
-  base_font = font_google(parametros$font_family)
+  base_font = font_google(parametros$font_family),
+  code_font = font_google(parametros$font_family_code)
 )
 
 # options highcharter -----------------------------------------------------

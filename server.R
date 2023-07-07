@@ -440,7 +440,11 @@ function(input, output, session) {
                c("spei_12", "spei_12_q",
                  "eddi_12", "eddi_12_q",
                  "zcsm_12", "zcsm_12_q",
+<<<<<<< HEAD
                  "zcndvi_3", "zcndvi_3_q",
+=======
+                 "zcndvi_12", "zcndvi_12_q",
+>>>>>>> refs/remotes/origin/main
                  "variable")
                )
              )
@@ -492,7 +496,11 @@ function(input, output, session) {
     un <- paste(as.character(attr(datos, "unit_name")), collapse = " ")
 
     data_unidad_g <- data_unidad |>
+<<<<<<< HEAD
       select(date, spei_12, eddi_12, zcsm_12, zcndvi_3) |>
+=======
+      select(date, spei_12, eddi_12, zcsm_12, zcndvi_12) |>
+>>>>>>> refs/remotes/origin/main
       pivot_longer(cols = -date) |>
       group_by(name) |>
       summarise(
@@ -575,7 +583,11 @@ function(input, output, session) {
       htmltools::tagList()
 
     hc_sequia <- data_unidad |>
+<<<<<<< HEAD
       select(date, spei_12, eddi_12, zcsm_12, zcndvi_3) |>
+=======
+      select(date, spei_12, eddi_12, zcsm_12, zcndvi_12) |>
+>>>>>>> refs/remotes/origin/main
       pivot_longer(cols = -date) |>
       left_join(
         dparvar |> select(name = variable, desc),
