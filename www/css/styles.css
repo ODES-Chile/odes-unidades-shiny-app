@@ -27,6 +27,10 @@
   font-family: "Source Code Pro";
 }
 
+#map > div.leaflet-control-container > div.leaflet-top.leaflet-right > div.info.legend.leaflet-control > div > strong {
+  font-family: 'Raleway';
+}
+
 /*
 .leaflet-popup-content-wrapper a {
   color:rgba(255,255,255,0.5);
