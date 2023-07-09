@@ -1,4 +1,3 @@
-# navbarPage(
 page_navbar(
   title  = tags$span(
     class = "title",
