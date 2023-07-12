@@ -15,7 +15,7 @@ page_navbar(
   # sidebar -----------------------------------------------------------------
   sidebar = sidebar(
     width = 400,
-    selectInput("unidad", tags$small("Unidad administrativa"), opt_unidad),
+    selectInput("unidad", tags$small("Unidades administrativas"), opt_unidad),
     selectInput("macrozona", tags$small("Macrozona"), opt_macrozona, multiple = FALSE), # selected = "zona central",
     selectInput("variable", tags$small("Variable"), opt_variable, selected = "pre"),
     sliderTextInput("fecha", tags$small("Fecha"), opt_fecha, selected = c(tail(opt_fecha, 12 * 10)[1], tail(opt_fecha, 1))),
