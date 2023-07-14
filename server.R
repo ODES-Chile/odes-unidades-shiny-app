@@ -254,11 +254,11 @@ function(input, output, session) {
       #   )
 
       lb <- data_geo2 |>
-        str_glue_data("{nombre_unidad} {round(variable, 3)} ({variable_cat})<br>{fmt_fecha(fmax)}") |>
+        str_glue_data("{nombre_unidad} {round(variable, parametros$round_digits)} ({variable_cat})<br>{fmt_fecha(fmax)}") |>
         map(htmltools::HTML)
 
       popp <- ~paste0(
-        nombre_unidad , " ",  round(variable, 3), " (", variable_cat, ")",
+        nombre_unidad , " ",  round(variable, parametros$round_digits), " (", variable_cat, ")",
         str_glue("<br/>{fmt_fecha(fmax)}<br/>"),
         tags$br(),
         actionButton(
@@ -271,24 +271,32 @@ function(input, output, session) {
     } else {
       # numerica
 
-      colorData <- data_geo2[["variable"]]
+      colorData <- round(data_geo2[["variable"]], parametros$round_digits)
 
       pal <- colorBin(cols, colorData, 10, pretty = TRUE, reverse = FALSE)
 
-      # jenks
+      # classIntervals jenks kmeans
+      cli::cli_alert_info(str_glue("classIntervals {length(colorData)}"))
+      t <- Sys.time()
       Nclass <- 5
-      cls_pre <- classIntervals(colorData, style = 'jenks', Nclass)
-
+      algo <- ifelse(input$unidad == "distrito_censal", "kmeans", "jenks")
+      cls_pre <- classIntervals(colorData, style = algo, Nclass)
+      t <- Sys.time() - t
+      cli::cli_alert_info(str_glue("classIntervals {round(t, parametros$round_digits)} {attr(t, \"units\")}"))
       cols <- colorRampPalette(cols)(Nclass)
 
-      colorData <- santoku::chop(colorData, breaks = cls_pre$brks, labels = santoku::lbl_glue("{l} - {r}"))
+      colorData <- santoku::chop(
+        colorData,
+        breaks = round(cls_pre$brks, parametros$round_digits),
+        labels = santoku::lbl_glue("{l} - {r}")
+        )
 
       pal <- colorFactor(palette = cols, domain = colorData)
 
       # pal(colorData)
 
       lb <- data_geo2 |>
-        str_glue_data("{nombre_unidad} {round(variable, 3)} {coalesce(data_variable$unidad, \"\")}<br>{fmt_fecha(fmax)}") |>
+        str_glue_data("{nombre_unidad} {round(variable, parametros$round_digits)} {coalesce(data_variable$unidad, \"\")}<br>{fmt_fecha(fmax)}") |>
         map(htmltools::HTML)
 
       # lb <- ~paste0(
@@ -297,7 +305,7 @@ function(input, output, session) {
       #   )
 
       popp <- ~paste0(
-        nombre_unidad , " ",  round(variable, 3), " ", coalesce(data_variable$unidad, ""), "",
+        nombre_unidad , " ",  round(variable, parametros$round_digits), " ", coalesce(data_variable$unidad, ""), "",
         str_glue("<br/>{fmt_fecha(fmax)}<br/>"),
         tags$br(),
         actionButton(
@@ -391,7 +399,7 @@ function(input, output, session) {
       select(date, variable) |>
       # filter(complete.cases(data_unidad)) |>
       select(x = date, y = variable) |>
-      mutate(x = datetime_to_timestamp(x), y = round(y, 2))
+      mutate(x = datetime_to_timestamp(x), y = round(y, parametros$round_digits))
 
     is_special <- str_detect(input$variable, "spi_|spei_|eddi_|zcndvi_|zcsm_")
     is_eddi <- str_detect(input$variable, "eddi_")
@@ -499,7 +507,7 @@ function(input, output, session) {
         last = last(value, na_rm = TRUE),
         maxi = max(value, na.rm = TRUE),
         mini = min(value, na.rm = TRUE),
-        data = list(tibble(x = datetime_to_timestamp(date), y = round(value, 2)))
+        data = list(tibble(x = datetime_to_timestamp(date), y = round(value, parametros$round_digits)))
       ) |>
       mutate(
         hc = map(data, function(d){
@@ -521,7 +529,7 @@ function(input, output, session) {
             )
         })
       ) |>
-      mutate(across(where(is.numeric), ~ round(.x, 2)))
+      mutate(across(where(is.numeric), ~ round(.x, parametros$round_digits)))
 
     data_unidad_g2 <- data_unidad |>
       arrange(date) |>
