@@ -566,14 +566,17 @@ function(input, output, session) {
 
     value_boxes <- data_unidad_g |>
       pmap(function(name, last, maxi, mini, data, hc, desc, q, q_lbl, metadata){
+
+        tt <- tooltipIcon(metadata, tags$span(icon("info-circle"), style= "opacity: 0.5;"))
+
         value_box(
           height = "100%",
-          title = tags$span(name, align = "center"),
+          title = tags$h6(tags$span(name, tt), align = "center"),
           value = tags$h2(HTML(last), align = "center"),
           tags$span(q_lbl, class = str_glue("badge badge-pal{q}")),
           span("min.:", mini, "/ max.:", maxi, align = "center"),
           tags$br(),
-          tags$span(tooltipIcon(metadata, tags$h5(icon("info-circle"), style= "opacity: 0.5;")), align = "right")
+          # tags$span(tooltipIcon(metadata, tags$h5(icon("info-circle"), style= "opacity: 0.5;")), align = "right")
           # span(bsicons::bs_icon("arrow-up"), maxi, "/", bsicons::bs_icon("arrow-down"), mini),
           # tags$em(tags$small(desc))
           # hc
