@@ -58,6 +58,7 @@ onStop(function() {
 # options -----------------------------------------------------------------
 parametros <- list(
   color = "#236478",
+  round_digits = 1,
   font_family = "Raleway",
   font_family_code = "Source Code Pro",
   tabla_datos = "estaciones_datos",
@@ -207,7 +208,7 @@ opt_unidad <-  c(
   "Regiones" = "regiones",
   "Provincias" = "provincias",
   "Comunas" = "comunas",
-  `Distrito censal` = "distrito_censal",
+  `Distritos censales` = "distrito_censal",
   "Cuencas" =  "cuencas",
   "Subcuencas" = "subcuencas",
   "Subsubcuencas" = "subsubcuencas"
