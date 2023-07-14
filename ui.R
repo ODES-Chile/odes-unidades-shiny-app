@@ -34,7 +34,7 @@ page_navbar(
       "false",
       checkboxInput("showchart", "Mostrar información histórica"),
     ),
-    # actionButton("guide", "Guide")
+    # actionButton("guidess", "Guide")
   ),
   # mapa --------------------------------------------------------------------
   bslib::nav_panel(
@@ -52,13 +52,14 @@ page_navbar(
     title = "Ayuda",
     icon  = icon("question"),
     layout_column_wrap(
-      width = 1/2,
+      width = 1,
       fluidRow(
         column(
-          width = 6,
+          width = 10,
           offset = 1,
           tags$br(),
-          "Próximamente!"
+          # "Próximamente!"
+          includeMarkdown("md/ayuda.md")
           # tags$dl(
           #   tags$dt("Macrozona"),tags$dd(str_c(rep("Explicacion", 20), collapse = " ")),
           #   tags$dt("Unidad Administrativa"),tags$dd("Explicacion 2")
