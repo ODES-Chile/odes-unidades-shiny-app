@@ -230,7 +230,7 @@ function(input, output, session) {
       as.vector()
 
     # si es spi, spei, eddi se usa el cortes de sequía
-    if(str_detect(input$variable, "spi_|spei_|eddi_|zcndvi_|zcsm_")){
+    if(str_detect(input$variable, "swei|spi_|spei_|eddi_|zcndvi_|zcsm_")){
       # input$variable <- "spei_12"
 
       colorData <- as.numeric(data_geo2[[str_c(input$variable, "_q")]])
@@ -401,7 +401,7 @@ function(input, output, session) {
       select(x = date, y = variable) |>
       mutate(x = datetime_to_timestamp(x), y = round(y, parametros$round_digits))
 
-    is_special <- str_detect(input$variable, "spi_|spei_|eddi_|zcndvi_|zcsm_")
+    is_special <- str_detect(input$variable, "swei|spi_|spei_|eddi_|zcndvi_|zcsm_")
     is_eddi <- str_detect(input$variable, "eddi_")
 
     chart_type <- case_when(
@@ -445,7 +445,8 @@ function(input, output, session) {
     data_unidad <- data_unidad |>
       select(date, code,
              all_of(
-               c("spei_12", "spei_12_q",
+               c("swei","swei_q",
+                 "spei_12", "spei_12_q",
                  "eddi_12", "eddi_12_q",
                  "zcsm_12","zcsm_12_q",
                  "zcndvi_3", "zcndvi_3_q",
@@ -500,7 +501,7 @@ function(input, output, session) {
     un <- paste(as.character(attr(datos, "unit_name")), collapse = " ")
 
     data_unidad_g <- data_unidad |>
-      select(date, spei_12, eddi_12, zcsm_12, zcndvi_3) |>
+      select(date, swei, spei_12, eddi_12, zcsm_12, zcndvi_3) |>
       pivot_longer(cols = -date) |>
       group_by(name) |>
       summarise(
@@ -586,7 +587,7 @@ function(input, output, session) {
       htmltools::tagList()
 
     hc_sequia <- data_unidad |>
-      select(date, spei_12, eddi_12, zcsm_12, zcndvi_3) |>
+      select(date, swei, spei_12, eddi_12, zcsm_12, zcndvi_3) |>
       pivot_longer(cols = -date) |>
       left_join(
         dparvar |> select(name = variable, desc),
