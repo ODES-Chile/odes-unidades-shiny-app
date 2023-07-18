@@ -14,6 +14,7 @@ Este índice vegetacional permite capturar la anomalía que ha presentado la veg
 
 
 REFERENCIAS
+
 SPEI
 Vicente-Serrano, S. M., Beguería, S., & López-Moreno, J. I. (2010). A multiscalar drought index sensitive to global warming: The Standardized Precipitation Evapotranspiration Index. Journal of Climate, 23(7), 1696-1718.
 
