@@ -23,5 +23,5 @@ Michael Hobbins, Andrew Wood, Daniel McEvoy, Justin Huntington, Charles Morton, 
 
 Daniel J. McEvoy, Justin L. Huntington, Michael T. Hobbins, Andrew Wood, Charles Morton, James Verdin, Martha Anderson, and Christopher Hain (June 2016) The Evaporative Demand Drought index: Part II – CONUS-wide Assessment Against Common Drought Indicators. J. Hydrometeor., 17(6), 1763-1779. doi:10.1175/JHM-D-15-0121.1.
 
-zcNDVI
-Rouse, J. W., Haas, R. H., Schell, J. A., Deering, D. W., & Harlan, J. C. (1974). Monitoring the Vernal Advancement and Retrogradation (Greenwave Effect) of Natural Vegetation. Remote Sensing Center, 1(September 1972), 48–62. https://ntrs.nasa.gov/search.jsp?R=19750020419 2020-03-22T20:18:24+00:00Z j
+zcNDVI  
+Zambrano, F., Vrieling, A., Nelson, A., Meroni, M., & Tadesse, T. (2018). Prediction of drought-induced reduction of agricultural productivity in Chile from MODIS, rainfall estimates, and climate oscillation indices. In Remote Sensing of Environment (Vol. 219, pp. 15–30). Elsevier BV. https://doi.org/10.1016/j.rse.2018.10.006 
