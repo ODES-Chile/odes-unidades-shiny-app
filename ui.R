@@ -53,19 +53,19 @@ page_navbar(
     icon  = icon("question"),
     layout_column_wrap(
       width = 1,
-      fluidRow(
-        column(
-          width = 10,
-          offset = 1,
-          tags$br(),
-          # "Próximamente!"
+      navset_card_tab(
+        # height = 450,
+        # full_screen = TRUE,
+        # title = "HTML Widgets",
+        nav_panel(
+          "Aplicación",
           includeMarkdown("md/ayuda.md")
-          # tags$dl(
-          #   tags$dt("Macrozona"),tags$dd(str_c(rep("Explicacion", 20), collapse = " ")),
-          #   tags$dt("Unidad Administrativa"),tags$dd("Explicacion 2")
-          #   )
+        ),
+        nav_panel(
+          "Indicadores",
+          includeMarkdown("md/indicadores.md")
+          )
         )
       )
     )
   )
-)
