@@ -664,6 +664,9 @@ function(input, output, session) {
       fs::path(nombre_descarga_datos(), ext = "xlsx")
     },
     content = function(file) {
+
+      citacion_modal()
+
       tempdata    <- file.path(tempdir(), "datos.xlsx")
       data_unidad <- data_unidad()
       data_unidad <- data_unidad |>
@@ -685,6 +688,9 @@ function(input, output, session) {
       fs::path(nombre_descarga_datos_mini(), ext = "xlsx")
     },
     content = function(file) {
+
+      citacion_modal()
+
       tempdata    <- file.path(tempdir(), "datos.xlsx")
       data_unidad <- data_unidad()
       data_unidad <- data_unidad |>

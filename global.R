@@ -157,8 +157,30 @@ fmt_fecha <- function(f = "2010-04-01"){
 
 }
 
+citacion_modal <- function(){
+
+  url_zenodo <- "https://doi.org/10.5281/zenodo.8135799"
+
+  showModal(
+    modalDialog(
+      title = "Citar ODES",
+      tags$p("La descarga de datos ya va a comenzar. Por favor, citar plataforma ODES como:"),
+      tags$p(
+        "Joshua Kunst, Francisco Zambrano Bigiarini, Fabián Llanos, & Joaquín Riquelme. (2023). ODES Unidades (v0.2.0). Zenodo. ",
+        tags$a(url_zenodo, href = url_zenodo)
+        ),
+      tags$hr(),
+      size = "m",
+      footer = NULL,
+      easyClose = TRUE,
+      fade = TRUE
+    )
+  )
+}
+
 # data --------------------------------------------------------------------
 dunits <- readRDS("data/01_dunits.rds")
+
 macrozonas <- sf::read_sf("data/macrozonas_chile.gpkg")
 
 dparvar <- readxl::read_excel("data/parametros_variables.xlsx")
