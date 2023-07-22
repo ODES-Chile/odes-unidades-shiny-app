@@ -4,7 +4,7 @@
 
 ## Descripción
 
-Aplicación web para visualizar información climática y de indicadores de sequía agregados a diferentes unidades administrativas: región, provincia, comuna, distrito censal; y unidades hidrológicas: cuencas, subcuencas y subsubcuencas. Utiliza datos de reanálisis climático de [ERA5-Land](https://www.ecmwf.int/en/era5-land) y del satelitae [MODIS](https://modis.gsfc.nasa.gov/) terra, agregados a nivel mensual. Las variables utilizadas corresponden a:
+Aplicación web para visualizar información climática y de indicadores de sequía agregados a diferentes unidades administrativas: región, provincia, comuna, distrito censal; y unidades hidrológicas: cuencas, subcuencas y subsubcuencas. Utiliza datos de reanálisis climático de [ERA5-Land](https://www.ecmwf.int/en/era5-land) y del satelite [MODIS](https://modis.gsfc.nasa.gov/) terra, agregados a nivel mensual. Las variables utilizadas corresponden a:
 - Temperatura media, máxima, mínima.
 - Precipitación
 - Contenido de humedad de suelo a 1 metro de profundidad.
