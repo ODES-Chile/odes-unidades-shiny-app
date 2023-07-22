@@ -1,4 +1,6 @@
-# Indicadores de Sequía
+### Indicadores de Sequía
+
+- `SPI`: Anomalía estandarizada de la precipitación acumulada en 1, 3, 6, 12 y 24 meses. `(McKee et al., 1993)`
 
 - `SPEI`: Anomalía estandarizada de la precipitación menos la evapotranspiración acumulada en 1, 3, 6, 12 y 24 meses. `(Vicente-Serrano et al., 2010)`
 
@@ -10,7 +12,9 @@
 
 - `SWEI`: Anomalía estandarizada del contenido de agua equivalente de nieve en un mes. `Huning & AghaKouchak, 2020)`
 
-# Referencias
+### Referencias
+
+McKee, T. B., N. J. Doesken, and J. Kleist, 1993: The relationship of drought frequency and duration of time scales. Eighth Conference on Applied Climatology, American Meteorological Society, Jan17-23, 1993, Anaheim CA, pp.179-186.
 
 Vicente-Serrano, S. M., Beguería, S., & López-Moreno, J. I. (2010). A multiscalar drought index sensitive to global warming: The Standardized Precipitation Evapotranspiration Index. Journal of Climate, 23(7), 1696-1718.
 
