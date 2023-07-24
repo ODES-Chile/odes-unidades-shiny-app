@@ -20,8 +20,16 @@
 ![macrozona_central](https://github.com/ODES-Chile/odes-unidades-shiny-app/assets/128641014/debd0456-3f8a-42a4-9016-ecd1ccc0db19)
 **Información sectorizada a la Macrozona Central (Figura 5).**
 
-- **Variable**: Aquí es posible seleccionar distintas variables climáticas, entre precipitación, temperatura, humedad relativa, evapotranspiración, humedad de suelo e indicadores de sequía y de vegetación.
-- **Fecha**: Permite seleccionar distintos intervalos de fecha, desde enero de 1981 a la información más actual que entrega producto satelital. El intervalo seleccionado se visualiza en el mini gráfico.
+- **Variable**: Aquí es posible seleccionar distintas variables climáticas entre precipitación, temperatura, humedad relativa, evapotranspiración y humedad de suelo. También es posible seleccionar distintos indicadores de sequía y vegetación. Todo esto agregado a distintas unidades administrativas (Figura 6 y 7).
+
+![var_pp_region](https://github.com/ODES-Chile/odes-unidades-shiny-app/assets/128641014/860f3d52-89b6-441e-909c-75156e0cd8aa)
+**Variable de precipitacion agregada a regiones (Figura 6).** 
+
+![var_SPEI12_com](https://github.com/ODES-Chile/odes-unidades-shiny-app/assets/128641014/9e89b00c-0633-477e-bed1-9990a012e891)
+**Indicador de sequía SPEI-12 agregado a comunas (Figura 7).**
+
+- **Fecha**: Este slider permite seleccionar distintos intervalos de fecha, desde enero de 1981 a la información más actual que entrega producto satelital. El intervalo seleccionado se visualiza en el mini gráfico.
+
 
 - **Mini gráfico**: Aquí se visualiza la serie de tiempo de la variable y fechas selecionadas. También es posible descargar en formato excel, los datos brutos del periodo de tiempo seleccionado.
 
