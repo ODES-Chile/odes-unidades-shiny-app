@@ -1,7 +1,25 @@
 ### Selectores en barra latera (_sidebar_)
 
-- **Unidad administrativa**: Este selector permite elegir entre 7 unidades administrativas dististintas: Región, provincia, comuna, distrito censal, cuenca, subcuenca y subsubcuenca. Con el fin de obtener diversa información climática agregada a distintas unidades administrativas.
-- **Macrozona**: Con este selector es posible elegir cualquier macrozona, con el fin de visualizar información de cualquier macrozona en específico.
+**Identificación de barra lateral (Figura 1)**
+![mostrar_panel](https://github.com/ODES-Chile/odes-unidades-shiny-app/assets/128641014/49a993e5-8fc8-4444-ad9b-91fed62d3764)
+**Barra lateral (Figura 1).**
+
+- **Unidades administrativas**: Este selector permite elegir entre 7 unidades administrativas dististintas: Región, provincia, comuna, distrito censal, cuenca, subcuenca y subsubcuenca. Con el fin de obtener diversa información climática agregada a distintas unidades administrativas (Figura 2). Cada vez que se cambia de unidad administrativa, los polígonos del mapa cambiarán a la unidad seleccionada (Figura 3).
+
+![mostrar_un_admin](https://github.com/ODES-Chile/odes-unidades-shiny-app/assets/128641014/28b20c30-079b-43d3-91f9-9d73ecddf885)
+**Unidad Administrativa (Figura 2).**
+
+![cambio_de_unidad](https://github.com/ODES-Chile/odes-unidades-shiny-app/assets/128641014/cb0027e8-9f61-40b8-9540-4bc69cb99a02)
+**Cambio de Unidad Administrativa (Figura 3).**
+
+- **Macrozona**: En esta pestaña es posible seleccionar alguna macrozona, con el fin de visualizar información sectorizada a cada una de estas (Figura 4 y 5).
+
+![mostrar_macrozona](https://github.com/ODES-Chile/odes-unidades-shiny-app/assets/128641014/e33a7aed-42fd-43f1-bc32-3745bb311258)
+**Identificación de selector de macrozonas (Figura 4).**
+
+![macrozona_central](https://github.com/ODES-Chile/odes-unidades-shiny-app/assets/128641014/debd0456-3f8a-42a4-9016-ecd1ccc0db19)
+**Información sectorizada a la Macrozona Central (Figura 5).**
+
 - **Variable**: Aquí es posible seleccionar distintas variables climáticas, entre precipitación, temperatura, humedad relativa, evapotranspiración, humedad de suelo e indicadores de sequía y de vegetación.
 - **Fecha**: Permite seleccionar distintos intervalos de fecha, desde enero de 1981 a la información más actual que entrega producto satelital. El intervalo seleccionado se visualiza en el mini gráfico.
 
