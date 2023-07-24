@@ -445,8 +445,7 @@ function(input, output, session) {
     data_unidad <- data_unidad |>
       select(date, code,
              all_of(
-               c("swei","swei_q",
-                 "spei_12", "spei_12_q",
+               c("spei_12", "spei_12_q",
                  "eddi_12", "eddi_12_q",
                  "zcsm_12","zcsm_12_q",
                  "zcndvi_3", "zcndvi_3_q",
@@ -501,7 +500,7 @@ function(input, output, session) {
     un <- paste(as.character(attr(datos, "unit_name")), collapse = " ")
 
     data_unidad_g <- data_unidad |>
-      select(date, swei, spei_12, eddi_12, zcsm_12, zcndvi_3) |>
+      select(date, spei_12, eddi_12, zcsm_12, zcndvi_3) |>
       pivot_longer(cols = -date) |>
       group_by(name) |>
       summarise(
@@ -587,7 +586,7 @@ function(input, output, session) {
       htmltools::tagList()
 
     hc_sequia <- data_unidad |>
-      select(date, swei, spei_12, eddi_12, zcsm_12, zcndvi_3) |>
+      select(date, spei_12, eddi_12, zcsm_12, zcndvi_3) |>
       pivot_longer(cols = -date) |>
       left_join(
         dparvar |> select(name = variable, desc),
