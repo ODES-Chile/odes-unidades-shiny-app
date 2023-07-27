@@ -28,17 +28,26 @@
 ![var_SPEI12_com](https://github.com/ODES-Chile/odes-unidades-shiny-app/assets/128641014/9e89b00c-0633-477e-bed1-9990a012e891)
 **Indicador de sequía SPEI-12 agregado a comunas (Figura 7).**
 
-- **Fecha**: Este slider permite seleccionar distintos intervalos de fecha, desde enero de 1981 a la información más actual que entrega producto satelital. El intervalo seleccionado se visualiza en el mini gráfico.
+- **Fecha**: Este slider permite seleccionar distintos intervalos de fecha, desde enero de 1981 a la información más actual que entrega producto satelital. El intervalo seleccionado se visualiza en el mini gráfico (Figura 8).
 
+![imagen](https://github.com/ODES-Chile/odes-unidades-shiny-app/assets/128641014/390444ba-1f4d-4853-af14-b82b3012b576)
+**Slider selector de intervalos de fecha (Figura 8)**
 
-- **Mini gráfico**: Aquí se visualiza la serie de tiempo de la variable y fechas selecionadas. También es posible descargar en formato excel, los datos brutos del periodo de tiempo seleccionado.
+- **Mini gráfico**: Aquí se visualiza la serie de tiempo de la variable y fechas selecionadas. También es posible descargar en formato excel, los datos brutos del periodo de tiempo seleccionado (Figura 9).
+
+![imagen](https://github.com/ODES-Chile/odes-unidades-shiny-app/assets/128641014/a8c9390f-c985-4be0-bd39-adbf613e9568)
+**Mini gráfico (Figura 9)**
+
 
 ### Secciones
 
 #### Mapa
 
-En el mapa se muestran las variables seleccionadas en el panel lateral. Aquí se puede seleccionar cualquier polígono y obtener el reporte de sequía agregado a la unidad administrativa seleccionada.
+En el mapa se muestran las variables seleccionadas en el panel lateral. Aquí se puede seleccionar cualquier polígono y obtener el reporte de sequía agregado a la unidad administrativa seleccionada (Figura 10).
+
+![imagen](https://github.com/ODES-Chile/odes-unidades-shiny-app/assets/128641014/164c9236-5617-4b29-888c-955d1e187405)
+**Mapa (Figura 10)**
 
 #### Reporte de sequía
 
-Reporte que muestra el estado de sequía en que se encuentra la unidad administrativa seleccionada. Cada indicador de sequía posee un informativo que explica a lo que se refiere cada uno. También es posible descargar los datos brutos de los indicadores presentados en el reporte.
+El reporte, se genera cada vez que se da clic en algún polígono presente en el mapa. Aquí se muestra el estado de sequía en que se encuentra la unidad administrativa seleccionada. Cada indicador de sequía posee un informativo que explica a lo que se refiere cada uno. También es posible descargar los datos brutos de los indicadores presentados en el reporte.
