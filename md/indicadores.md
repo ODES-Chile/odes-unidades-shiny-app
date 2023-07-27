@@ -8,7 +8,7 @@
 
 - `zcSM`: Anomalía estandarizada de la humedad de suelo a 1m de profundidad acumulada a 1, 3, 6, 12 y 24 meses. 
 
-- `zcNDVI`: Anomalía estandarizada que presenta la vegetación acumulada en 1, 3, 6 y 12 meses. `(Zambrano et al., 2016)`
+- `zcNDVI`: Anomalía estandarizada que presenta la vegetación acumulada en 1, 3, 6 y 12 meses. `(Zambrano et al., 2018)`
 
 - `SWEI`: Anomalía estandarizada del contenido de agua equivalente de nieve en un mes. `Huning & AghaKouchak, 2020)`
 
