@@ -56,3 +56,7 @@ El reporte se genera cada vez que se hace clic en algún polígono presente en e
 
 ![reporte](https://github.com/ODES-Chile/odes-unidades-shiny-app/assets/128641014/fb54bc97-8002-4b34-a68f-c5449b6cf8a5)
 **Reporte (figura 11).**
+
+
+### Observación
+Cada vez que la página queda inactiva por aproximadamente 10 minutos, se deberá volver a cargar apretando la tecla "F5", ya que después de transcurrido ese tiempo la plataforma se suspende.
