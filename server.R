@@ -460,7 +460,8 @@ function(input, output, session) {
 
     meses <- c("Enero", "Febrero", "Marzo", "Abril",
                "Mayo", "Junio", "Julio", "Agosto",
-               "Septiembre", "Octubre", "Noviembre", "Diciembre")
+               "Septiembre", "Octubre", "Noviembre",
+               "Diciembre")
 
     # datos para la variable seleccionada
     datos <- data_unidad |>
@@ -553,9 +554,9 @@ function(input, output, session) {
                             link = '#',
                             trigger = 'focus hover',
                             dataplacement = "auto bottom") {
-      tags$a(
+      tags$span(
         ...,
-        href = link,
+        # href = link,
         `data-toggle` = 'tooltip',
         `data-placement` = dataplacement,
         `data-trigger` = trigger,
@@ -568,6 +569,8 @@ function(input, output, session) {
       pmap(function(name, last, maxi, mini, data, hc, desc, q, q_lbl, metadata){
 
         tt <- tooltipIcon(metadata, tags$span(icon("info-circle"), style= "opacity: 0.5;"))
+        # tt <- tooltipIcon( "texto simple", tags$span(icon("info-circle"), style= "opacity: 0.5;"))
+        # tt <- NULL
 
         value_box(
           height = "100%",
@@ -613,6 +616,9 @@ function(input, output, session) {
         # title =  htmltools::tagList(un, tags$br(), tags$small(str_glue("De {fmt_fecha(fs[1])} a {fmt_fecha(fs[2])}"))),
         title = htmltools::tagList("Reporte Sequía ", tags$strong(un), str_glue(" {fmt_fecha(fs[2])}")),
         fluidRow(value_boxes),
+
+        tags$head(tags$script(HTML("$(function () { $('[data-toggle=tooltip]').tooltip() })"))),
+
         # layout_column_wrap(value_boxes, width = 1/4, fillable = TRUE),
         # layout_columns(value_boxes, col_widths = c(3, 3, 3, 3)),
 
