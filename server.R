@@ -178,7 +178,7 @@ function(input, output, session) {
       filter(id_unidad %in% units) |>
       rename(variable := !!v)
 
-    if(v %in% c("swe", "swei") & str_detect(u, "cuenca")){
+    if(v %in% c("swe", "swei") & str_detect(u, "cuenca") & mc != "norte grande"){
       cli::cli_alert_info("filtrando unidades hidrológicas para variable {v} y unidad {u}.")
 
       units2 <- dhidron |>
