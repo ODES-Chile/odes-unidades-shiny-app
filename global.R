@@ -183,6 +183,8 @@ dunits <- readRDS("data/01_dunits.rds")
 
 macrozonas <- sf::read_sf("data/macrozonas_chile.gpkg")
 
+dhidron <- readRDS("data/data_seleccion_unidades_hidrologicas_nieve.rds")
+
 dparvar <- readxl::read_excel("data/parametros_variables.xlsx")
 
 unidad_key <-  list(
@@ -222,6 +224,7 @@ opt_fecha <- tbl(sql_con(), "data_clima_sequia") |>
   # filter(year(date) >= 2011) |> # cuidado con el data_variable que filtra anios
   pull()
 
+# todas las variables
 opt_variable <- dparvar |>
   select(desc, variable) |>
   deframe()

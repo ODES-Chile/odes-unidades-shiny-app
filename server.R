@@ -147,7 +147,8 @@ function(input, output, session) {
 
   })
 
-  # reactivo intermedio para filtrar por macrozona
+  # reactivo intermedio para filtrar por macrozona y eliminar
+  # unidades en caso de SWEI y Contenido de agua equivalente de nieve
   data_geo2 <- reactive({
 
     data_geo <- data_geo()
@@ -155,25 +156,39 @@ function(input, output, session) {
     cli::cli_h3("data_geo2 (macrozonas + variable)")
     cli::cli_alert_info("macrozona {input$macrozona}")
     cli::cli_alert_info("variable  {input$variable}")
+    cli::cli_alert_info("unidad {input$unidad}")
 
     v  <- input$variable
     mc <- input$macrozona
+    u <- input$unidad
 
     if(input$macrozona %in% "todas"){
       units <- dunits |>
         # filter(macrozona %in% input$macrozona) |>
-        filter(unit == input$unidad) |>
+        filter(unit == u) |>
         pull(code)
     } else {
       units <- dunits |>
         filter(macrozona %in% input$macrozona) |>
-        filter(unit == input$unidad) |>
+        filter(unit == u) |>
         pull(code)
     }
 
     data_geo2 <- data_geo |>
       filter(id_unidad %in% units) |>
       rename(variable := !!v)
+
+    if(v %in% c("swe", "swei") & str_detect(u, "cuenca")){
+      cli::cli_alert_info("filtrando unidades hidrológicas para variable {v} y unidad {u}.")
+
+      units2 <- dhidron |>
+        filter(unit == u) |>
+        pull(code)
+
+      data_geo2 <- data_geo2 |>
+        filter(id_unidad %in% units2)
+
+    }
 
     # mapview::mapview(data_geo2)
     data_geo2
