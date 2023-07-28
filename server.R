@@ -607,7 +607,8 @@ function(input, output, session) {
       hc_chart(zoomType = "x") |>
       hc_navigator(enabled = TRUE) |>
       hc_size(height = 400) |>
-      hc_yAxis(endOnTick = FALSE, startOnTick = FALSE, title = list(text = ""))
+      hc_yAxis(endOnTick = FALSE, startOnTick = FALSE, title = list(text = "")) |>
+      hc_xAxis(title = list(text = "Fecha"))
 
     hc_sequia
 
