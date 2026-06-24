@@ -1,4 +1,20 @@
-.bg-dark, .navbar.navbar-inverse { background-color: #236478 !important;}
+.navbar,
+.navbar.bg-primary,
+.navbar.bg-dark,
+.navbar.navbar-inverse {
+  --bs-navbar-color: rgba(255, 255, 255, 0.85);
+  --bs-navbar-hover-color: #ffffff;
+  --bs-navbar-active-color: #ffffff;
+  --bs-navbar-brand-color: #ffffff;
+  --bs-navbar-brand-hover-color: #ffffff;
+  background-color: #236478 !important;
+}
+
+.navbar .nav-link,
+.navbar .navbar-brand,
+.navbar .title {
+  color: #ffffff !important;
+}
 
 .bslib-sidebar-layout>.main {
   padding: 0rem !important;

@@ -10,6 +10,10 @@ page_navbar(
   id = "nav",
   lang = "es",
   theme = theme_odes,
+  navbar_options = navbar_options(
+    bg = parametros$color,
+    theme = "dark"
+  ),
   fillable = TRUE,
   fillable_mobile = TRUE,
   # sidebar -----------------------------------------------------------------
